@@ -11,14 +11,16 @@ forloops = False
 
 import numpy
 
-import H2_Reactor_1 
+import H2_Reactor_1
 from H2_Reactor_1 import *
-import electrolysis
+#import electrolysis
 from electrolysis import *
-import liquefaction
+#import liquefaction
 from liquefaction import *
-import Storage_losses
+#import Storage_losses
 from Storage_losses import *
+
+from beneficiation_placeholder import *
 
 print("start")
 
@@ -54,7 +56,7 @@ hours_per_month = 24*30
 
 # (2) Mass flow conversion parameters
 benef_rego_preserved = 0.5           
-pre_benef_ilmenite_grade = 0.15
+pre_benef_ilmenite_grade = 0.1
 benef_ilmenite_recovery= 1
 
 
@@ -79,17 +81,27 @@ dihydrogen_molar_kg_mass = 0.002 #kg/mol
 '=================================================='
 
 # (3) Mass flow
-X_in_regolith = 1
-   # kg-regolith
+X_in_regolith = 1  # kg-regolith
 X_out_regolith = X_in_regolith
 T_in_regolith = X_out_regolith
 T_out_regolith = T_in_regolith 
 B_in_regolith = T_out_regolith
 
-B_in_ilmenite = B_in_regolith * pre_benef_ilmenite_grade 
-B_out_ilmenite = B_in_ilmenite * benef_ilmenite_recovery
-B_out_regolith = B_in_regolith * benef_rego_preserved 
-R_in_regolith = B_out_regolith   ## all figures here ar kg
+
+"add benef module "
+
+benef1=beneficiation_placeholder.Benef_class(B_in_regolith, pre_benef_ilmenite_grade)
+
+#B_in_ilmenite = B_in_regolith * pre_benef_ilmenite_grade 
+
+#B_out_ilmenite = B_in_ilmenite * benef_ilmenite_recovery
+
+B_out_ilmenite =benef1.B_out_ilmenite
+B_out_regolith = benef1.B_out_regolith 
+ 
+
+
+R_in_regolith = B_out_regolith  ## all figures here are kg
 
 B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
 R_out_water_mols = B_out_ilmenite_mols          ## Later must substract unreacted ilmenite
@@ -332,7 +344,7 @@ def energy_as_func_of_ilmenite():
 
         
 
-energy_as_func_of_ilmenite()
+#energy_as_func_of_ilmenite()
 
 
 

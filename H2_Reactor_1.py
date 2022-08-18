@@ -71,7 +71,11 @@ energy_to_heat_regolith_batch = 20 #[kWh]
 fill_level = 0.75   
 oxygen_production_rate = 274 #[kg/day] (100 t/year)
 total_batch_reaction_time = 5.5 #[h]
-ilmenite_percentage = post_benef_ilmenite_grade #how much ilmenite is in the regolith
+
+
+#ilmenite_percentage = post_benef_ilmenite_grade #how much ilmenite is in the regolith
+
+ilmenite_percentage = 0.1  ## DL added this as workaround for glitch on 18/8/2022
 
 #Reactor Heat-up variables
 reactor_heat_up_time = 18000 #[s]
