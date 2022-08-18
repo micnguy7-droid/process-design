@@ -2,24 +2,20 @@
 """
 Created on Sat Jun 18 14:02:33 2022
 #H2_R2O2 model:    
-author: DL and Fardin !
+author: DL
 
-Version 1.1
+Version 1.0
 
 """
 forloops = False
 
 import numpy
 
-import H2_Reactor_1
-from H2_Reactor_1 import *
-#import electrolysis
-from electrolysis import *
-#import liquefaction
-from liquefaction import *
-#import Storage_losses
-from Storage_losses import *
 
+from H2_Reactor_1 import *
+from electrolysis import *
+from liquefaction import *
+from Storage_losses import *
 from beneficiation_placeholder import *
 
 print("start")
