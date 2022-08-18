@@ -2,9 +2,9 @@
 """
 Created on Sat Jun 18 14:02:33 2022
 #H2_R2O2 model:    
-author: DL
+author: DL and Fardin !
 
-Version 1.0
+Version 1.1
 
 """
 forloops = False
