@@ -75,7 +75,7 @@ total_batch_reaction_time = 5.5 #[h]
 
 #ilmenite_percentage = post_benef_ilmenite_grade #how much ilmenite is in the regolith
 
-ilmenite_percentage = 0.1  ## DL added this as workaround for glitch on 18/8/2022
+ilmenite_percentage = 0.5  ## DL added this as workaround for glitch on 18/8/2022
 
 #Reactor Heat-up variables
 reactor_heat_up_time = 18000 #[s]
@@ -342,7 +342,7 @@ water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy
 #print("total_energy_used_by_reactor =",total_energy_used_by_reactor)
 #print("total_energy_used_by_reactor_per_kg_regolith =",total_energy_used_by_reactor_per_kg_regolith)
 #print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
-print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
+#print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
 """
 energy_comparison = plt.figure()
 ax = energy_comparison.add_axes([0,0,2,2])

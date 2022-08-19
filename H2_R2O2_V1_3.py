@@ -11,13 +11,14 @@ forloops = False
 
 import numpy
 
-
+import H2_Reactor_1
 from H2_Reactor_1 import *
 from electrolysis import *
 from liquefaction import *
+import Storage_losses
 from Storage_losses import *
 from beneficiation_placeholder import *
-#from transportation import *
+from transportation import *
 
 
 print("start")
@@ -33,13 +34,12 @@ oxygen_production_rate = 11.42  #[kg/h] (11.42 kg/h = 100 t/year)
 
 
 # (1) Energy cost parameters      # DUMMY NUMBERS currently 18/6/2022
-rego_exca = 0.02    # kWh/kg-regolith      (alpha)
-rego_tran = 0.02    # kWh/kg-regolith/km   (beta)
+rego_exca = 0.0002    # kWh/kg-regolith      (alpha)
+rego_tran = Beta    # kWh/kg-regolith/km   (beta)
 rego_heat = total_energy_used_by_reactor_per_kg_regolith # kWh/kg-regolith      (zeta)
 water_elec = electrolysis_energy_per_mol_H2O  # kWh/mol-water        (theta)
 dioxy_liq = work_per_mol_O2    # kWh/mol-dioxygen     (psi)
 pv_efficiency = 0.20
-
 
 #lattitude variable
 User_lattitude = 0
@@ -55,17 +55,17 @@ hours_per_month = 24*30
 # (2) Mass flow conversion parameters
 benef_rego_preserved = 0.5           
 pre_benef_ilmenite_grade = 0.1
-benef_ilmenite_recovery= 1
+benef_ilmenite_recovery= 0.51
 
 
 #Added by Fardin to use in reactor module
 post_benef_ilmenite_grade = pre_benef_ilmenite_grade*benef_ilmenite_recovery/benef_rego_preserved
 
 
-LOX_boil_off_sun = 0.15
-LOX_boil_off_shade = 0.1
+LOX_boil_off_sun = LOX_tank["boil_off_rate_%_per_month_sunlight"]/100 #/100 to convert from % to ratio
+LOX_boil_off_shade = LOX_tank["boil_off_rate_%_per_month_shadow"]/100 #/100 to convert from % to ratio
 LOX_boil_off = LOX_boil_off_sun
-
+print("LOX_boil_off=",LOX_boil_off)
 '================================== (end parameters)'
 
 
@@ -144,8 +144,8 @@ L_energy = L_in_dioxy_mols * dioxy_liq
 Energy_chain_name = ["X_energy","T_energy","R_energy","E_energy","L_energy"] 
 Energy_chain = [X_energy,T_energy,R_energy,E_energy,L_energy] 
 
-## (4.3) Total Energy per Batch with added storage losses
-Total_energy = (X_energy + T_energy +R_energy +E_energy +L_energy)*(1+LOX_boil_off)
+## (4.3) Total Energy per Batch 
+Total_energy = (X_energy + T_energy +R_energy +E_energy +L_energy)
 
 
 
@@ -169,17 +169,16 @@ PV_area_m2_required_for_production= Energy_required_per_month /PV_out_kwh_per_m2
 total_monthly_LOX_Stored_final_kg = batches_per_month * S_out_dioxy_kg 
 
 
-#(4.6) calculate energy losses in storage
-S_energy = Total_energy * LOX_boil_off
+#(4.6) Energy per kg LOX
 
-#(4.7) calculate energy per step per kg LOX
-X_energy_per_kg_LOX = X_energy/S_in_dioxy_kg
-T_energy_per_kg_LOX = T_energy/S_in_dioxy_kg
-R_energy_per_kg_LOX = R_energy/S_in_dioxy_kg
-E_energy_per_kg_LOX = E_energy/S_in_dioxy_kg
-L_energy_per_kg_LOX = L_energy/S_in_dioxy_kg
-Total_energy_per_kg_LOX = Total_energy/S_in_dioxy_kg
-S_energy_per_kg_LOX = Total_energy_per_kg_LOX*LOX_boil_off
+X_energy_per_kg_LOX = X_energy/S_out_dioxy_kg
+T_energy_per_kg_LOX = T_energy/S_out_dioxy_kg
+R_energy_per_kg_LOX = R_energy/S_out_dioxy_kg
+E_energy_per_kg_LOX = E_energy/S_out_dioxy_kg
+L_energy_per_kg_LOX = L_energy/S_out_dioxy_kg
+Total_energy_per_kg_LOX = Total_energy/S_out_dioxy_kg
+
+
 
 
  
@@ -212,25 +211,22 @@ print("batch_per_month ", production_rate*24*30)
 print("m2 of PV required for the production: ",round(PV_area_m2_required_for_production,2))
 print("En demand per month in kWh: ",round(Energy_required_per_month,0))
 print("Total Monthly Prod LOX kg: ",round(total_monthly_LOX_Stored_final_kg,0))
-print("S_out_dioxy_kg:", round(S_out_dioxy_kg,5))
-print("S_energy_per_kg_LOX:", round(S_energy_per_kg_LOX))
 print("total_energy_used_by_reactor_per_kg_O2:", round(total_energy_used_by_reactor_per_kg_O2,1))
 print("R_energy:", round(R_energy,3))
 
 
 "GRAPHS"
 
-total_energy_comparison = plt.figure()
-ax = total_energy_comparison.add_axes([0,0,2,2])
-energy_consumers = ["X","T","R","E","L","S","total"]
-energy = [X_energy_per_kg_LOX,T_energy_per_kg_LOX,R_energy_per_kg_LOX,E_energy_per_kg_LOX,L_energy_per_kg_LOX,S_energy_per_kg_LOX,Total_energy_per_kg_LOX]
-ax.bar(energy_consumers, energy)
-ax.set_ylabel('kWh/kg LOX')
-ax.set_xlabel('Process steps')
-plt.show
 
-
-
+#This way to plot things shows in visual studio code
+total_energy_comparison = plt.figure(1)
+energy_consumers = ["X","T","R","E","L","total"]
+energy = [X_energy_per_kg_LOX,T_energy_per_kg_LOX,R_energy_per_kg_LOX,E_energy_per_kg_LOX,L_energy_per_kg_LOX,Total_energy_per_kg_LOX]
+plt.bar(energy_consumers, energy)
+plt.title('Energy comparison between different process steps')
+plt.xlabel('Process steps')
+plt.ylabel('kWh/kg LOX')
+plt.show()
 
 #Show or hide individual steps energy use
 
@@ -265,10 +261,19 @@ plt.show
 
 def energy_as_func_of_ilmenite():
 
+    #lists to include in energy as func of ilmenite graph
     ilmenite_grade_list = []
     energy_as_func_of_ilmenite_list = []
-    max_pre_benef_ilmenite_grade = 30
-    
+    max_pre_benef_ilmenite_grade = 16 #[%]
+
+    #lists to include in stacked bar chart graph 
+    X_energy_list = []
+    T_energy_list = []
+    R_energy_list = []
+    E_energy_list = []
+    L_energy_list = []
+
+
     for i in range (1,max_pre_benef_ilmenite_grade):
         
         'Calculations'
@@ -276,7 +281,7 @@ def energy_as_func_of_ilmenite():
         
         #increasing variable
         
-        pre_benef_ilmenite_grade_loop = i
+        pre_benef_ilmenite_grade_loop = i/100 #convert from percent to ratio
         
         
         # (3) Mass flow
@@ -287,10 +292,13 @@ def energy_as_func_of_ilmenite():
         
         B_in_ilmenite = B_in_regolith * pre_benef_ilmenite_grade_loop 
         B_out_ilmenite = B_in_ilmenite * benef_ilmenite_recovery
-        B_out_regolith = B_in_regolith * benef_rego_preserved 
+        B_out_gangue = (B_out_ilmenite-benef1.enrichment_factor*B_out_ilmenite*pre_benef_ilmenite_grade_loop)/(benef1.enrichment_factor *pre_benef_ilmenite_grade_loop)
+        B_out_regolith = B_out_ilmenite + B_out_gangue
         R_in_regolith = B_out_regolith
         
         
+
+
         B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
         R_out_water_mols = B_out_ilmenite_mols          ## Later must substract unreacted ilmenite
         E_in_water_mols = R_out_water_mols 
@@ -300,7 +308,7 @@ def energy_as_func_of_ilmenite():
         S_in_dioxy_mols = L_out_dioxy_mols
         S_in_dioxy_kg = S_in_dioxy_mols*dioxygen_molar_kg_mass
         S_out_dioxy_mols = L_out_dioxy_mols*(1-LOX_boil_off)
-        S_out_dioxy_kg = S_out_dioxy_mols/dioxygen_molar_kg_mass
+        S_out_dioxy_kg = S_out_dioxy_mols*dioxygen_molar_kg_mass
         LOX_loss = (L_out_dioxy_mols-S_out_dioxy_mols)/dioxygen_molar_kg_mass
         
         # (4) Energy Accounting
@@ -318,33 +326,66 @@ def energy_as_func_of_ilmenite():
         R_energy = R_in_regolith * rego_heat 
         E_energy = E_in_water_mols * water_elec 
         L_energy = L_in_dioxy_mols * dioxy_liq
-        Total_energy = (X_energy + T_energy +R_energy +E_energy +L_energy)*(1+LOX_boil_off)
-        S_energy = Total_energy*LOX_boil_off
+        Total_energy = (X_energy + T_energy +R_energy +E_energy +L_energy)
+        
         
         #report result
-        print("ilmen: ",round(pre_benef_ilmenite_grade_loop) , "%." ,"  Energy-req kWh/kg-LOX: " , round(Total_energy/S_in_dioxy_kg,4))
+        #print("ilmen: ",round(pre_benef_ilmenite_grade_loop*100) , "%." ,"  Energy-req kWh/kg-LOX: " , round(Total_energy/S_in_dioxy_kg,4))
         
-        ilmenite_grade_list.append(pre_benef_ilmenite_grade_loop)
-        energy_as_func_of_ilmenite_list.append(Total_energy/S_in_dioxy_kg)
+
+        #append results to lists
+        ilmenite_grade_list.append(pre_benef_ilmenite_grade_loop*100)
+        energy_as_func_of_ilmenite_list.append(Total_energy/S_out_dioxy_kg)
+        X_energy_list.append(X_energy/S_out_dioxy_kg)
+        T_energy_list.append(T_energy/S_out_dioxy_kg)
+        R_energy_list.append(R_energy/S_out_dioxy_kg)
+        E_energy_list.append(E_energy/S_out_dioxy_kg)
+        L_energy_list.append(L_energy/S_out_dioxy_kg)
+
+        
+
+    #Convert to numpy array to use in stacked bar figure
+    X_energy_list = np.array(X_energy_list) 
+    T_energy_list = np.array(T_energy_list) 
+    R_energy_list = np.array(R_energy_list) 
+    E_energy_list = np.array(E_energy_list) 
+    L_energy_list = np.array(L_energy_list) 
+
         
     
-    
-    energy_as_func_of_ilmenite = plt.figure()
-    ax = energy_as_func_of_ilmenite.add_axes([0,0,1,1])
+
+    #Figure that plots the energy in function of ilmenite head grade
+    energy_as_func_of_ilmenite_figure = plt.figure(2)
     x = ilmenite_grade_list
     y = energy_as_func_of_ilmenite_list
-    plt.plot(x, y, '-ok');
-    ax.set_ylabel('kWh/kg LOX')
-    ax.set_xlabel('ilmenite %')
-    plt.show
+    plt.plot(x, y, '-ok')
+    plt.title('Energy as a function of ilmenite %')
+    plt.xlabel('ilmenite %')
+    plt.ylabel('kWh/kg LOX')
+    plt.show()
+    
+    #Stacked bar graph: Figure that plots the energy in function of ilmenite head grade,
+    #but also distinguishes between different processes
+
+    stacked_bar_chart = plt.figure(3)
+    plt.bar(ilmenite_grade_list, X_energy_list, color='grey', label='X_energy')
+    plt.bar(ilmenite_grade_list, T_energy_list, bottom=X_energy_list, color='black', label='T_energy')
+    plt.bar(ilmenite_grade_list, R_energy_list, bottom=T_energy_list+X_energy_list, color='red', label='R_energy')
+    plt.bar(ilmenite_grade_list, E_energy_list, bottom=T_energy_list+X_energy_list+R_energy_list, color='green', label='E_energy')
+    plt.bar(ilmenite_grade_list, L_energy_list, bottom=T_energy_list+X_energy_list+R_energy_list+E_energy_list, color='blue', label='L_energy')
+    plt.title('Energy consumption of the different processes depending on ilmenite concentration')
+    plt.xlabel('ilmenite %')
+    plt.ylabel('kWh/kg LOX')
+    plt.legend()
+    plt.show()
+    
     
 
 
-        
-
-#energy_as_func_of_ilmenite()
+energy_as_func_of_ilmenite()
 
 
 
 
 print("\n end")
+

@@ -333,20 +333,20 @@ if continueBoolean3 == 1:
     # Round trip
     EnergyRoundTrip = EnergyOutward + EnergyReturn  # [J] for a mass of regolith of 20 [kg] (max load), and a distance of 1 [km]
     Beta = EnergyRoundTrip/(mRegolith*DistanceToTravel*3600)  # [kWh/kg/km]
-    print("The total energy required for the round trip is:", EnergyRoundTrip/1000, "[kJ] (", EnergyOutward/1000, "[kJ] for the the outward trip,", EnergyReturn/1000, "[kJ] for the return trip).")
-    print("Hence, beta =", EnergyRoundTrip/(mRegolith*DistanceToTravel*3600), "[kWh/kg/km]")  # Looks good since Dorian got 5.4 [kJ/kg/km] which might be a slight over-estimate.
+    #print("The total energy required for the round trip is:", EnergyRoundTrip/1000, "[kJ] (", EnergyOutward/1000, "[kJ] for the the outward trip,", EnergyReturn/1000, "[kJ] for the return trip).")
+    #print("Hence, beta =", EnergyRoundTrip/(mRegolith*DistanceToTravel*3600), "[kWh/kg/km]")  # Looks good since Dorian got 5.4 [kJ/kg/km] which might be a slight over-estimate.
     
     # N.B.: transporting 40 kg of regolith requires:
             # either two rovers to transport it at the same time (energy required times 2),
             # either the same rover to perform two round trips (energy required times 2 because the distance is multiplied by 2).
 
     # Graph as a function of regolith mass (assume a distance of 1 [km])
-    mRegolithVector = np.arange(0, 50, 1) * 90  # [kg]
+    """mRegolithVector = np.arange(0, 50, 1) * 90  # [kg]
     plt.plot(mRegolithVector, Beta * mRegolithVector, label='Assumptions: \n ')
     plt.ylabel('Locomotion energy requirements [kJ/km]')
     plt.xlabel('Regolith mass [kg]')
     plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
-    plt.show()  # it has the expected shape!
+    plt.show()  # it has the expected shape!"""
 
 
 if continueBoolean4 == 1:

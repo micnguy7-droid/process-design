@@ -399,6 +399,8 @@ def boil_offf_rate_calculation():
     
     #RETURNING VALUES TO DICTIONARY
     
+    LOX_tank["boil_off_rate_%_per_month_sunlight"] = boil_off_rate_percent_per_month_sunlight
+    LOX_tank["boil_off_rate_%_per_month_shadow"] = boil_off_rate_percent_per_month_shadow
 
     
 
