@@ -26,4 +26,3 @@ COP = carnot_efficiency * COP_carnot
 heat_removed_per_mol_O2 = heat_capacity_oxygen * (T_of_incoming_oxygen - boiling_point_oxygen) + vaporization_enthalpy_oxygen
 work_per_mol_O2 = heat_removed_per_mol_O2/(COP*3.6*10**6) 
 
-

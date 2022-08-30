@@ -32,7 +32,7 @@ MOLAR_MASS_O2                           = 32                #[g/mole]
 "=================Variables=================="
 
 LOX_tank = {"steel_wall" : { #steel tank wall
-                "inner_radius" : 2,#[m]
+                "inner_radius" : 1,#[m]
                 "thickness" :  0.004,#[m]
                 "outer_radius" : 0,#[m]
                 "mass" : 0,#[kg]
@@ -399,6 +399,8 @@ def boil_offf_rate_calculation():
     
     #RETURNING VALUES TO DICTIONARY
     
+    LOX_tank["boil_off_rate_%_per_month_sunlight"] = boil_off_rate_percent_per_month_sunlight
+    LOX_tank["boil_off_rate_%_per_month_shadow"] = boil_off_rate_percent_per_month_shadow
 
     
 
@@ -416,7 +418,6 @@ def __main__():
     heat_flux_into_tank_calculation()
     boil_offf_rate_calculation()
     
-    #print("mli_mass =",round(LOX_tank["mli"]["mass"]),"kg")
     
 __main__()
 
