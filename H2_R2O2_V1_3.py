@@ -5,7 +5,6 @@ Created on Sat Jun 18 14:02:33 2022
 author: DL
 
 Version 1.0
-test
 """
 forloops = False
 
