@@ -76,7 +76,7 @@ total_batch_reaction_time = 5.5 #[h]
 #ilmenite_percentage = post_benef_ilmenite_grade #how much ilmenite is in the regolith
 
 ilmenite_percentage = 0.5  ## DL added this as workaround for glitch on 18/8/2022
-
+ilmenite_percentage_for_reactor_sizing = 0.5
 #Reactor Heat-up variables
 reactor_heat_up_time = 18000 #[s]
 T_reduction_regolith_batch = 1173 #[K] Temperature of regolith during reduction
@@ -92,7 +92,7 @@ def reactor_geometry_calculation():
     
     #Calculation of reactor and insulation size, surface area of of reactor and mass of insulation
     
-    reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_percentage * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3)
+    reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3)
     #print("reactor_chamber_radius =", reactor_chamber_radius)
     inner_radius_CFI = reactor_chamber_radius #[m]
     outer_radius_CFI = inner_radius_CFI + CFI_thickness #[m]
@@ -248,45 +248,46 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch):
     ydata_ilmenite = Cp_data_ilmenite[:,2]
 
     #plot the data
-    plt.figure(1,dpi=120)
-    plt.title("Cp(T) of lunar regolith")
+    """heat_capacity_regolith_and_ilmenite = plt.figure(4,dpi=120)
+    plt.title("Cp(T) of lunar regolith and ilmenite")
     plt.xlabel("Temperature [K]")
-    plt.ylabel(Cp_rawdata[0][1])
+    plt.ylabel("Specific heat capacity Cp [J/(kg*K)]")
     #plt.xlim(0,3)
     #plt.ylim(0,2)
     #plt.yscale("log")
-    plt.plot(xdata,ydata,label="Experimental data")
+    #plt.plot(xdata,ydata,label="Lunar regolith")
+    plt.plot(xdata_ilmenite,ydata_ilmenite,label="Ilmenite")"""
     
-    #plot the data
-    plt.figure(2,dpi=120)
-    plt.title("Cp(T) of ilmenite")
-    plt.xlabel("Temperature [K]")
-    plt.ylabel(Cp_ilmenite_rawdata[0][1])
-    #plt.xlim(0,3)
-    #plt.ylim(0,2)
-    #plt.yscale("log")
-    plt.plot(xdata_ilmenite,ydata_ilmenite,label="Experimental data")
 
 
-    #Define fitting function
+    #Define fitting function for lunar regolith
     def func(T,a,b,c,d,e,f):
         return a + b*T + c*T**2 + d*T**3 + e*T**4 + f*T**5
-    
     #use curve_fit from scipy.optimize to fit the fitting function to the experimental data
     #outcomes are popt (optimal parameters)
     popt, pcov = curve_fit(func, xdata, ydata)
-    
     #Evaluate and plot function with the optimal parameters
     funcdata = func(xdata,popt[0],popt[1],popt[2],popt[3],popt[4],popt[5])
-    """plt.plot(xdata,funcdata,label="Model")
-    plt.legend()"""
+    #plt.plot(xdata,funcdata,label="Lunar regolith")
     
     
-    
-    
+    #Define fitting function for ilmenite
+    def func_ilmenite(T,a,b,c,d,e,f):
+        return a + b*T + c*T**2 + d*T**3 + e*T**4 + f*T**5
+    #use curve_fit from scipy.optimize to fit the fitting function to the experimental data
+    #outcomes are popt (optimal parameters)
+    popt, pcov = curve_fit(func_ilmenite, xdata_ilmenite, ydata_ilmenite)
+    #Evaluate and plot function with the optimal parameters
+    funcdata_ilmenite = func_ilmenite(xdata_ilmenite,popt[0]+140*1,popt[1],popt[2],popt[3],popt[4],popt[5])
+    #plt.plot(xdata_ilmenite,funcdata_ilmenite,label="Average")
+    #plt.legend()
+    #plt.show()
+
+
     #integrate from starting to end temperature to get total heat needed to heat up 1 kg of regolith
-    I = integrate.quad(func, 273, 1173, args=(popt[0],popt[1],popt[2],popt[3],popt[4],popt[5])) #Joules
+    I = integrate.quad(func_ilmenite, 273, 1173, args=(popt[0]+140*(1-ilmenite_percentage),popt[1],popt[2],popt[3],popt[4],popt[5])) #Joules
     
+
     #divide by 3.6e6 to get energy in kWh
     energy_to_heat_regolith_batch_per_kg = float(I[0])/(3.6e6) #kWh
     #multiply by mass of regolith batch to get total energy to heat regolith batch
@@ -329,8 +330,15 @@ def energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor):
 
     
 #main part of the module
+"""ilmenite_grade_list = []
+rego_heat_list = []
+
+for i in range (1,99):
     
-    
+    ilmenite_percentage = i/100 #convert from percent to ratio"""
+
+
+
 #Assign the values of the calculated in the function to use them later on
 reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation()
 mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(reactor_chamber_radius)  
@@ -346,6 +354,13 @@ energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch = energy_to_
 Q_out_added_heat_up, Q_lost_during_reaction, Q_total_lost = total_heat_lost(Q_out_added_heat_up, Q_flux_out)
 total_energy_used_by_reactor, total_energy_used_by_reactor_per_kg_regolith = total_energy_used_by_reactor_func(total_energy_to_heat_insulation, energy_to_heat_regolith_batch, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_hydrogen, mass_regolith_batch)
 water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2 = energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor)
+
+
+"""    #append result to list
+    rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
+    ilmenite_grade_list.append(ilmenite_percentage)"""
+
+    
 
 
 #print("Q_out_added_heat_up = ",Q_out_added_heat_up)
