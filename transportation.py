@@ -17,10 +17,10 @@ import warnings
 g = 1.62  #1.62  # Gravity (m/s2)
 rho = 1600  #1600  # Density (kg/m3), 1600 is taken as reference.
 n = 1  # Exponent
-kc = 1400  # Cohesion modulus (N/m^n+1) '#2100
+kc = 2100  # Cohesion modulus (N/m^n+1) '#2100
 kphi = 820000  # Friction modulus (N/m^n+2)
 c = 170  # Cohesion (Pa)
-phi = math.radians(37)  # Friction angle (rad) 'CHANGE IT TO 45? 37 before
+phi = math.radians(45)  # Friction angle (rad) 'CHANGED IT TO 45. 37 before
 k = 18e-3  # Shear modulus (m)
 Nc = 70.1  # Coefficient based on phi
 Ny = 68.1  # Coefficient based on phi

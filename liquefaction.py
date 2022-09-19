@@ -12,7 +12,7 @@ Created on Thu Aug 11 11:34:24 2022
 #liquefaction unit data
 cryocooler_efficiency = 0.1 #[-]
 T_cold_reservoir_carnot_cycle = 80 #[K]
-T_hot_reservoir_carnot_cycle = 300 #[K]
+T_hot_reservoir_carnot_cycle = 233 #[K]
 
 #oxygen data
 T_of_incoming_oxygen = 340 #[K]
