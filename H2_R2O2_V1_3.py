@@ -56,7 +56,7 @@ hours_per_month = 24*30
 benef_rego_preserved = 0.5           
 pre_benef_ilmenite_grade = 0.1
 benef_ilmenite_recovery= 0.51
-
+ilmenite_conversion = ilmenite_conversion_percentage/100 #Calculated in reactor module, depends on reaction time
 
 #Added by Fardin to use in reactor module
 post_benef_ilmenite_grade = pre_benef_ilmenite_grade*benef_ilmenite_recovery/benef_rego_preserved
@@ -99,7 +99,7 @@ B_out_regolith = benef1.B_out_regolith
 R_in_regolith = B_out_regolith  ## all figures here are kg
 
 B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
-R_out_water_mols = B_out_ilmenite_mols*0.5   # 50 % ilmenite reacts, for 2.5 h reaction time. Might have to model the dependence
+R_out_water_mols = B_out_ilmenite_mols*ilmenite_conversion   #ilmenite_conversion Calculated in reactor module, depends on reaction time
 
 E_in_water_mols = R_out_water_mols 
 E_out_dioxy_mols = E_in_water_mols*1/2
@@ -210,7 +210,7 @@ print("En demand per month in kWh: ",round(Energy_required_per_month,0))
 print("Total Monthly Prod LOX kg: ",round(total_monthly_LOX_Stored_final_kg,0))
 print("total_energy_used_by_reactor_per_kg_O2:", round(total_energy_used_by_reactor_per_kg_O2,1))
 print("R_energy:", round(R_energy,3))
-
+print("ilmenite_conversion:",round(ilmenite_conversion))
 
 "GRAPHS"
 
@@ -297,7 +297,7 @@ def energy_as_func_of_ilmenite():
 
 
         B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
-        R_out_water_mols = B_out_ilmenite_mols*0.5          # 50 % ilmenite reacts, for 2.5 h reaction time. Might have to model the dependence
+        R_out_water_mols = B_out_ilmenite_mols*ilmenite_conversion   #ilmenite_conversion Calculated in reactor module, depends on reaction time
         E_in_water_mols = R_out_water_mols 
         E_out_dioxy_mols = E_in_water_mols*1/2
         L_in_dioxy_mols = E_out_dioxy_mols

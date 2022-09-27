@@ -68,7 +68,8 @@ reactor_height_above_surface = 1 #[m]
 relevant_lunar_surface_radius = 10 #[m]
 relevant_lunar_surface_area = math.pi * relevant_lunar_surface_radius**2 #[m^2]
 T_inner_wall_CFI = 1173 #[K]
-batch_reaction_time = 9000 #[s]
+batch_reaction_time_in_hours = 2.5 #[h]
+batch_reaction_time = batch_reaction_time_in_hours*3600 #[s]
 energy_to_heat_regolith_batch = 0 #[kWh]
 fill_level = 0.7   
 oxygen_production_rate = 274 #[kg/day] (100 t/year)
@@ -79,7 +80,6 @@ total_batch_reaction_time = 7.5 #[h]
 
 ilmenite_percentage = 0.5  ## DL added this as workaround for glitch on 18/8/2022
 ilmenite_percentage_for_reactor_sizing = 0.5
-ilmenite_conversion_ratio = 0.5
 #Reactor Heat-up variables
 reactor_heat_up_time = 18000 #[s]
 T_reduction_regolith_batch = 1173 #[K] Temperature of regolith during reduction
@@ -88,14 +88,45 @@ T_reduction_regolith_batch = 1173 #[K] Temperature of regolith during reduction
 
 
 
+def ilmenite_to_water_conversion():
+
+    #Calculation of how much ilmenite is converted/reacted inside the reactor
+    #The conversion % depends strongly on the reaction time
+
+    #Import the ilmenite conversion csv file
+    with open("ilmenite_conversion.csv", "r") as i:
+        #save data into list
+        ilmenite_conversion_rawdata = list(csv.reader(i,delimiter = ";"))
+    
+    #save ilmenite conversion data into np.array
+    ilmenite_conversion_data = np.array(ilmenite_conversion_rawdata[1:],dtype=float)
+    reaction_time = ilmenite_conversion_data[:,0]
+    ilmenite_conversion_percentage = ilmenite_conversion_data[:,1]
 
 
+    #Define fitting function for ilmenite conversion data
+    def func_ilmenite_conversion(t,a,b,c,d,e,f):
+        return a + b*t + c*t**2 + d*t**3 + e*t**4 + f*t**5
+    #use curve_fit from scipy.optimize to fit the fitting function to the experimental data
+    #outcomes are popt (optimal parameters)
+    popt, pcov = curve_fit(func_ilmenite_conversion, reaction_time, ilmenite_conversion_percentage)
+    #Evaluate and plot function with the optimal parameters
+    funcdata_ilmenite_conversion = func_ilmenite_conversion(reaction_time,popt[0],popt[1],popt[2],popt[3],popt[4],popt[5])
 
-def reactor_geometry_calculation():
+    ilmenite_conversion_percentage = func_ilmenite_conversion(batch_reaction_time_in_hours,popt[0],popt[1],popt[2],popt[3],popt[4],popt[5])
+
+    #print('ilmenite_conversion_ratio',ilmenite_conversion_percentage)
+    #plt.plot(reaction_time,funcdata_ilmenite_conversion,label="ilmenite conversion")
+    #plt.legend()
+    #plt.show()
+
+    return ilmenite_conversion_percentage
+
+def reactor_geometry_calculation(ilmenite_conversion_percentage):
     
     #Calculation of reactor and insulation size, surface area of of reactor and mass of insulation
     
-    reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_conversion_ratio * ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3) #factor 0.5 is because for every mol of ilmenite, 0.5 mol O2 are created
+    reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_conversion_percentage/100 * ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3) #factor 0.5 is because for every mol of ilmenite, 0.5 mol O2 are created
     inner_radius_CFI = reactor_chamber_radius #[m]
     outer_radius_CFI = inner_radius_CFI + CFI_thickness #[m]
     inner_radius_HTMLI = outer_radius_CFI #[m]
@@ -139,8 +170,8 @@ def energy_to_heat_hydrogen_func(ilmenite_mass_batch):
     T_pre_heater = 980 #[K]
     power_to_heat_hydrogen = HEAT_CAPACITY_HYDROGEN*mass_flow_hydrogen*(T_post_heater-T_pre_heater)/1000 #/1000 to account for g/mol
     energy_to_heat_hydrogen = power_to_heat_hydrogen*batch_reaction_time/1000 #/1000 to convert to kWh
-    print("power_to_heat_hydrogen =",power_to_heat_hydrogen)
-    print("energy_to_heat_hydrogen =",energy_to_heat_hydrogen)
+    #print("power_to_heat_hydrogen =",power_to_heat_hydrogen)
+    #print("energy_to_heat_hydrogen =",energy_to_heat_hydrogen)
 
 
     return m_H2_per_batch, energy_to_heat_hydrogen
@@ -303,7 +334,7 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch):
 
     #integrate from starting to end temperature to get total heat needed to heat up 1 kg of regolith
     I = integrate.quad(func_ilmenite, 273, 1173, args=(popt[0]+140*(1-ilmenite_percentage),popt[1],popt[2],popt[3],popt[4],popt[5])) #Joules
-    print("Integral =",I)
+    #print("Integral =",I)
 
     #divide by 3.6e6 to get energy in kWh
     energy_to_heat_regolith_batch_per_kg = float(I[0])/(3.6e6) #kWh
@@ -331,10 +362,10 @@ def total_energy_used_by_reactor_func(total_energy_to_heat_insulation, energy_to
     return total_energy_used_by_reactor, total_energy_used_by_reactor_per_kg_regolith
 
 
-def energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor):
+def energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor, ilmenite_conversion_percentage):
     
     #How much oxygen can be produced from one batch? First calculate how many moles of water is prduced, then moles of oxygen, then oxygen mass
-    water_out_moles_batch = ilmenite_moles_batch 
+    water_out_moles_batch = ilmenite_moles_batch*ilmenite_conversion_percentage/100
     oxygen_out_moles_batch = water_out_moles_batch/2
     oxygen_out_kg_batch = oxygen_out_moles_batch * MOLAR_MASS_O2/1000 #divided by 1000 to convert from g to kg
     total_energy_used_by_reactor_per_kg_O2 = total_energy_used_by_reactor/oxygen_out_kg_batch
@@ -362,7 +393,9 @@ for i in range (50,51):
 
 
     #Assign the values of the calculated in the function to use them later on
-    reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation()
+    ilmenite_conversion_percentage = ilmenite_to_water_conversion()
+
+    reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation(ilmenite_conversion_percentage)
 
     mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(reactor_chamber_radius)
 
@@ -388,11 +421,12 @@ for i in range (50,51):
 
     total_energy_used_by_reactor, total_energy_used_by_reactor_per_kg_regolith = total_energy_used_by_reactor_func(total_energy_to_heat_insulation, energy_to_heat_regolith_batch, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_hydrogen, mass_regolith_batch)
 
-    water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2 = energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor)
+    water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2 = energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor, ilmenite_conversion_percentage)
 
 
-    print(ilmenite_percentage)
-    print(total_energy_used_by_reactor_per_kg_regolith)
+    #print(ilmenite_percentage)
+    #print(ilmenite_conversion_percentage)
+    #print(total_energy_used_by_reactor_per_kg_regolith)
     #append result to list
     rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
     ilmenite_grade_list.append(i)
@@ -412,16 +446,16 @@ df.to_csv("rego_heat_list.csv", sep=';',index=False)
 #print("Q_out_added_heat_up = ",Q_out_added_heat_up)
 #print("Q_lost_during_reaction = ",Q_lost_during_reaction)
 #print("reactor_efficiency =", reactor_efficiency)
-print("mass_regolith_batch=",mass_regolith_batch)
-print("reactor_chamber_radius = ", reactor_chamber_radius)
+#print("mass_regolith_batch=",mass_regolith_batch)
+#print("reactor_chamber_radius = ", reactor_chamber_radius)
 #print("reactor_insulation_mass =", reactor_insulation_mass)
 #print("energy_to_heat_hydrogen = ",energy_to_heat_hydrogen)
 #print("T_outer_surface_HTMLI =", T_outer_surface_HTMLI)
 #print("Q_flux_out = ",Q_flux_out)
-print("ilmenite_moles_batch =",ilmenite_moles_batch)
-print("water_out_moles_batch =",water_out_moles_batch)
-print("Reactor volume =", 4/3 * math.pi * reactor_chamber_radius**3 * 0.25)
-print("total_energy_used_by_reactor =",total_energy_used_by_reactor)
+#print("ilmenite_moles_batch =",ilmenite_moles_batch)
+#print("water_out_moles_batch =",water_out_moles_batch)
+#print("Reactor volume =", 4/3 * math.pi * reactor_chamber_radius**3 * 0.25)
+#print("total_energy_used_by_reactor =",total_energy_used_by_reactor)
 #print("total_energy_used_by_reactor_per_kg_regolith =",total_energy_used_by_reactor_per_kg_regolith)
 #print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
 #print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
