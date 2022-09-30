@@ -46,7 +46,7 @@ T_LUNAR_SURFACE_IN_SHADOW               = 92                #[K]
 REGOLITH_DENSITY                        = 1500              #[kg/m^3]
 DENSITY_CFI                             = 2730              #[kg/m^3]
 DENSITY_HTMLI                           = 72                #[kg/m^3]
-HEAT_CAPACITY_HYDROGEN                  = 14500             #[J/(kg*K)] Assumed to be constant (conservative assumption)
+HEAT_CAPACITY_HYDROGEN                  = 15300             #[J/(kg*K)] Assumed to be constant (conservative assumption)
 MOLAR_MASS_H2                           = 2                 #[g/mol]
 MOLAR_MASS_ILMENITE                     = 151.71            #[g/mol]
 MOLAR_MASS_O2                           = 32                #[g/mol]
@@ -184,9 +184,9 @@ def energy_to_heat_hydrogen_func(ilmenite_mass_batch):
     return energy_to_heat_hydrogen
 
 
-def energy_endothermic_ilmenite_H2_reaction_func(ilmenite_moles_batch):
+def energy_endothermic_ilmenite_H2_reaction_func(ilmenite_moles_batch,ilmenite_conversion_percentage):
     #Energy lost to endothermic reaction of hydrogen and ilmenite
-    energy_endothermic_ilmenite_H2_reaction = ilmenite_moles_batch * DELTA_H_REACTION_ILMENITE_HYDROGEN
+    energy_endothermic_ilmenite_H2_reaction = ilmenite_moles_batch * DELTA_H_REACTION_ILMENITE_HYDROGEN*ilmenite_conversion_percentage/100
     
     return energy_endothermic_ilmenite_H2_reaction
 
@@ -380,16 +380,15 @@ def energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor, ilmenit
     return water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2
 
 
-
 def power_requirements(total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up,energy_to_heat_hydrogen,Q_lost_during_reaction,energy_endothermic_ilmenite_H2_reaction):
     
     #Power requirements during heat-up phase
     power_heat_up_phase = (total_energy_to_heat_insulation+energy_to_heat_regolith_batch+Q_out_added_heat_up)/reactor_heat_up_time_in_hours
-    print("power_heat_up_phase=",power_heat_up_phase)
+    #print("power_heat_up_phase=",power_heat_up_phase)
 
     #Power requirements during reaction phase
     power_reaction_phase = (energy_to_heat_hydrogen+Q_lost_during_reaction+energy_endothermic_ilmenite_H2_reaction)/batch_reaction_time_in_hours
-    print("power_reaction_phase=",power_reaction_phase)
+    #print("power_reaction_phase=",power_reaction_phase)
 
     return power_heat_up_phase, power_reaction_phase
     
@@ -417,7 +416,7 @@ for i in range (1,99):
 
     energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(ilmenite_mass_batch)
 
-    energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(ilmenite_mass_batch)
+    energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(ilmenite_mass_batch,ilmenite_conversion_percentage)
 
     energy_to_heat_CFI_insulation, energy_to_heat_HTMLI, total_energy_to_heat_insulation = energy_to_heat_insulation_func(reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass)
 
