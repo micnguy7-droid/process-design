@@ -52,7 +52,7 @@ MOLAR_MASS_ILMENITE                     = 151.71            #[g/mol]
 MOLAR_MASS_O2                           = 32                #[g/mol]
 DELTA_H_REACTION_ILMENITE_HYDROGEN      = 0.003             #[kWh/mol]
 HEAT_CAPACITY_CFI                       = 1130              #[J/(kg*K)] Assumed to be constant (conservative assumption)
-HEAT_CAPACITY_HTMLI                     = 586               #[J/(kg*K)] Assumed to be constant (conservative assumption)
+HEAT_CAPACITY_HTMLI                     = 910               #[J/(kg*K)] Heat capacity of aluminum (All of the weight of HTMLI comes from the foil)
 
 
 
@@ -220,14 +220,14 @@ def solar_and_lunar_heat_flux_calculation(surface_area_outer_HTMLI, view_factor_
     #Heat flux coming from lunar surface to outer HTMLI surface 
     Q_flux_lunar_surface_shadow = (σ *T_LUNAR_SURFACE_IN_SHADOW**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT * REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI  #[W] 
 
-    return Q_flux_solar, Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow
+    return Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow
 
 
-def outer_surface_heat_balance(Q_flux_solar, Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI):
+def outer_surface_heat_balance(Q_flux_lunar_surface_shadow, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI):
 
     #Calculation of T_outer_surface_HTMLI (in sunlight) by doing heat balance around outer surface of HTMLI 
     def function1(T_outer_surface_HTMLI):
-        x = (Q_flux_solar + Q_flux_lunar_surface_sunlight + (T_inner_wall_CFI - T_outer_surface_HTMLI)*4*math.pi
+        x = (Q_flux_lunar_surface_shadow + (T_inner_wall_CFI - T_outer_surface_HTMLI)*4*math.pi
         /((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - σ * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
         return x
     T_outer_surface_HTMLI = float(scipy.optimize.fsolve(function1, 400))
@@ -246,7 +246,7 @@ def radiative_and_conductive_heat_flux_calculation(T_outer_surface_HTMLI, surfac
     return Q_flux_radiation_HTMLI, Q_flux_out
 
 
-def energy_losses_during_heat_up_calculation(Q_flux_solar, Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI):
+def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI):
 
     #Losses over insulation during heat-up calculation
     T_incoming_regolith_batch = 273 #[K] Temperature of incoming regolith batch
@@ -257,7 +257,7 @@ def energy_losses_during_heat_up_calculation(Q_flux_solar, Q_flux_lunar_surface_
         
         #Calculation of T_outer_surface_HTMLI_heat_up (in sunlight) by doing heat balance around outer surface of HTMLI 
         def function2(T_outer_surface_HTMLI_heat_up):
-            x = (Q_flux_solar + Q_flux_lunar_surface_sunlight + (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi
+            x = (Q_flux_lunar_surface_shadow + (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi
                  /((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - σ * T_outer_surface_HTMLI_heat_up**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
             return x
         T_outer_surface_HTMLI_heat_up = float(scipy.optimize.fsolve(function2, 400))
@@ -422,13 +422,13 @@ for i in range (1,99):
 
     view_factor_reactor_lunar_surface, view_factor_lunar_surface_reactor = view_factor_calculation(surface_area_outer_HTMLI)
 
-    Q_flux_solar, Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow = solar_and_lunar_heat_flux_calculation(surface_area_outer_HTMLI, view_factor_lunar_surface_reactor)
+    Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow = solar_and_lunar_heat_flux_calculation(surface_area_outer_HTMLI, view_factor_lunar_surface_reactor)
 
-    T_outer_surface_HTMLI = outer_surface_heat_balance(Q_flux_solar, Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
+    T_outer_surface_HTMLI = outer_surface_heat_balance(Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
 
     Q_flux_radiation_HTMLI, Q_flux_out = radiative_and_conductive_heat_flux_calculation(T_outer_surface_HTMLI, surface_area_outer_HTMLI, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI)
 
-    Q_out_added_heat_up = energy_losses_during_heat_up_calculation(Q_flux_solar, Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
+    Q_out_added_heat_up = energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
 
     energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_calculation(mass_regolith_batch)
 
@@ -464,6 +464,7 @@ df.to_csv("rego_heat_list.csv", sep=';',index=False)
 #print("Q_total_lost = ",Q_total_lost)
 #print("reactor_efficiency =", reactor_efficiency)
 #print("mass_regolith_batch=",mass_regolith_batch)
+print("surface_area_outer_HTMLI=",surface_area_outer_HTMLI)
 #print("reactor_chamber_radius = ", reactor_chamber_radius)
 #print("reactor_insulation_mass =", reactor_insulation_mass)
 #print("energy_to_heat_hydrogen = ",energy_to_heat_hydrogen)
