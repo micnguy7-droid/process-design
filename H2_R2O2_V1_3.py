@@ -21,6 +21,7 @@ import Storage
 from Storage import *
 from beneficiation_placeholder import *
 from transportation import *
+from excavation import *
 
 
 print("start")
@@ -34,26 +35,15 @@ production_rate = 0.5  #kg regolith/24-hours
 'production rate kg-regolith-excavated /24-hours'
 oxygen_production_rate = 11.42  #[kg/h] (11.42 kg/h = 100 t/year)
 
-
 # (1) Energy cost parameters      # DUMMY NUMBERS currently 18/6/2022
-rego_exca = 0.0002    # kWh/kg-regolith      (alpha)
+rego_exca = Alpha    # kWh/kg-regolith      (alpha)
 rego_tran = Beta    # kWh/kg-regolith/km   (beta)
 rego_heat = total_energy_used_by_reactor_per_kg_regolith # kWh/kg-regolith      (zeta)
 water_elec = electrolysis_energy_per_mol_H2O  # kWh/mol-water        (theta)
 dioxy_liq = work_per_mol_O2    # kWh/mol-dioxygen     (psi)
 storage_cooling = zero_boil_off_system["Energy_per_kg_LOX"] # kWh/mol-dioxygen
-pv_efficiency = 0.20
 
-#lattitude variable
-User_lattitude = 0
 
-#solar input radiation to PV
-solar_input = 1361 #Watts/m2
-Avg_W_per_month = solar_input * 0.40
-Avg_KW_per_month= Avg_W_per_month/1000
-hours_per_month = 24*30
-
-##add FFC module
 
 # (2) Mass flow conversion parameters
 benef_rego_preserved = 0.5           
@@ -117,10 +107,6 @@ S_out_dioxy_kg = S_in_dioxy_kg
 #print("S_in_g", round(S_in_dioxy_kg*1000,1))
 
 
-
-
-
-
 # (4) Energy Accounting
 
 ## (4.1) init variables
@@ -146,36 +132,13 @@ Energy_chain = [X_energy,T_energy,R_energy,E_energy,L_energy,S_energy]
 Total_energy = (X_energy + T_energy +R_energy +E_energy +L_energy + S_energy)
 
 
-
-
-
-#(4.4) Energy Per Month
-
-batches_per_month = production_rate *24*30
-Energy_required_per_month = batches_per_month * Total_energy #change total energy to total_energy_pre_batch
-
-
-
-
-
-Sol_in_kwh_per_month = Avg_KW_per_month* hours_per_month 
-PV_out_kwh_per_m2_month = Sol_in_kwh_per_month*pv_efficiency
-PV_area_m2_required_for_production= Energy_required_per_month /PV_out_kwh_per_m2_month
-
-
-#(4.5) LOX production per month
-total_monthly_LOX_Stored_final_kg = batches_per_month * S_out_dioxy_kg 
-
-
 #(4.6) Energy per kg LOX
-
 X_energy_per_kg_LOX = X_energy/S_out_dioxy_kg
 T_energy_per_kg_LOX = T_energy/S_out_dioxy_kg
 R_energy_per_kg_LOX = R_energy/S_out_dioxy_kg
 E_energy_per_kg_LOX = E_energy/S_out_dioxy_kg
 L_energy_per_kg_LOX = L_energy/S_out_dioxy_kg
 S_energy_per_kg_LOX = S_energy/S_out_dioxy_kg
-
 Total_energy_per_kg_LOX = Total_energy/S_out_dioxy_kg
 
 
@@ -188,20 +151,20 @@ Total_energy_per_kg_LOX = Total_energy/S_out_dioxy_kg
 'READOUTS and GRAPHS'
 '=================='
 
-print("Batch size in Regolith excavated kg: " ,X_in_regolith)
-print("ilmenite %: " ,pre_benef_ilmenite_grade *100)
+#print("Batch size in Regolith excavated kg: " ,X_in_regolith)
+#print("ilmenite %: " ,pre_benef_ilmenite_grade *100)
 #print("electrol input water mols", round(E_in_water_mols ,2))
 #print("electrol input water g", round(E_in_water_mols/0.018 ,2))
 #print("beneficiaiton out ilmenite in kg ", round(B_out_ilmenite,2))
-print("total energy req per batch (kWh): " , round(Total_energy,2))
+#print("total energy req per batch (kWh): " , round(Total_energy,2))
 #print("dioxy yield before storage kg: " , round(S_in_dioxy_kg,2))
-print("mols o2 produced by Electro: " ,round(S_in_dioxy_mols,2)) 
-print("mass o2 after electro g: " ,round(S_in_dioxy_kg*1000,2))
+#print("mols o2 produced by Electro: " ,round(S_in_dioxy_mols,2)) 
+#print("mass o2 after electro g: " ,round(S_in_dioxy_kg*1000,2))
 #print("Energy per mol dioxy (kWh/mol): " , round(Total_energy/S_out_dioxy_mols,2))
 
 
-print("Stored LOX final g: ",round(S_out_dioxy_kg*1000,2))
-print("Energy per kg dioxy (kWh/kg): " , round(Total_energy/S_out_dioxy_kg,0))
+#print("Stored LOX final g: ",round(S_out_dioxy_kg*1000,2))
+'''print("Energy per kg dioxy (kWh/kg): " , round(Total_energy/S_out_dioxy_kg,0))
 
 print("  ")
 print("Energy per kg rego input (kWh/kg): " , round(Total_energy/X_out_regolith,2))
@@ -214,19 +177,19 @@ print("Total Monthly Prod LOX kg: ",round(total_monthly_LOX_Stored_final_kg,0))
 print("total_energy_used_by_reactor_per_kg_O2:", round(total_energy_used_by_reactor_per_kg_O2,1))
 print("R_energy:", round(R_energy,3))
 print("ilmenite_conversion:",round(ilmenite_conversion))
-
+'''
 "GRAPHS"
 
 
 #This way to plot things shows in visual studio code
-total_energy_comparison = plt.figure(1)
+'''total_energy_comparison = plt.figure(1)
 energy_consumers = ["Excavation","Transportation","Hydrogen Reduction Reactor","Electrolysis","Liquefaction","Storage"]
 energy = [X_energy_per_kg_LOX,T_energy_per_kg_LOX,R_energy_per_kg_LOX,E_energy_per_kg_LOX,L_energy_per_kg_LOX,S_energy_per_kg_LOX]
 plt.bar(energy_consumers, energy)
 #plt.title('Energy comparison between different process steps')
 plt.xlabel('Process steps')
 plt.ylabel('Energy consumption [kWh/kg LOX]')
-plt.show()
+plt.show()'''
 
 #Show or hide individual steps energy use
 
@@ -264,7 +227,7 @@ def energy_as_func_of_ilmenite():
     #lists to include in energy as func of ilmenite graph
     ilmenite_grade_list = []
     energy_as_func_of_ilmenite_list = []
-    max_pre_benef_ilmenite_grade = 32 #[%]
+    max_pre_benef_ilmenite_grade = 16 #[%] 
 
     #lists to include in stacked bar chart graph 
     X_energy_list = []
@@ -274,7 +237,7 @@ def energy_as_func_of_ilmenite():
     L_energy_list = []
     S_energy_list = []
 
-    for i in range (2,max_pre_benef_ilmenite_grade):
+    for i in range (2,max_pre_benef_ilmenite_grade*2):
         
         'Calculations'
         '=================================================='
@@ -334,7 +297,7 @@ def energy_as_func_of_ilmenite():
         #report result
         #print("ilmen: ",round(pre_benef_ilmenite_grade_loop*100) , "%." ,"  Energy-req kWh/kg-LOX: " , round(Total_energy/S_in_dioxy_kg,4))
         
-
+        
         #append results to lists
         ilmenite_grade_list.append(pre_benef_ilmenite_grade_loop*100)
         energy_as_func_of_ilmenite_list.append(Total_energy/S_out_dioxy_kg)
@@ -347,6 +310,8 @@ def energy_as_func_of_ilmenite():
         
 
     #Convert to numpy array to use in stacked bar figure
+    ilmenite_grade_list = np.array(ilmenite_grade_list)
+    energy_as_func_of_ilmenite_list = np.array(energy_as_func_of_ilmenite_list)
     X_energy_list = np.array(X_energy_list) 
     T_energy_list = np.array(T_energy_list) 
     R_energy_list = np.array(R_energy_list) 
@@ -383,7 +348,7 @@ def energy_as_func_of_ilmenite():
     plt.legend()
     plt.show()
     '''
-    return ilmenite_grade_list, energy_list
+    return ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list
     
     
 
@@ -398,17 +363,17 @@ energy = [X_energy_per_kg_LOX,T_energy_per_kg_LOX,R_energy_per_kg_LOX,E_energy_p
 sum_energy = np.sum(energy)
 labels = np.around(energy/sum_energy*100, 1)
 energy_consumers_full = ["Excavation", "Transportation", "Reactor", "Electrolysis", "Liquefaction", "Storage"]
-colors_bars = ["tab:grey", "black", "tab:red", "tab:green",  "tab:blue", "tab:orange"]
-colors_bars = ["black", "grey", viridis(0.2), viridis(0.45),  viridis(0.6), viridis(0.95)] 
+#colors_bars = ["tab:grey", "black", "tab:red", "tab:green",  "tab:blue", "tab:orange"]
+colors_bars = ["orange", "red", viridis(0.2), viridis(0.45),  viridis(0.6), viridis(0.95)] 
 #colors_bars = [pastel[5], pastel[7], pastel[3], pastel[2],  pastel[0], pastel[8]]
 #colors_bars = ['#FEB144', pastel[7], '#FF6663', '#FDFD97',  '#9EC1CF', '#9EE09E']
 #colors_bars = ['black', '#8197a6', '#f1666a', '#00ae9d',  '#009bdb', '#1e3378']
 
 #used lists and variables for the stackplot
-ilmenite_grade_list, energy_list = energy_as_func_of_ilmenite()
+ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list = energy_as_func_of_ilmenite()
 legend_stackplot = [ "Storage",  "Liquefaction", "Electrolysis","Transportation","Excavation","Reactor"]
-colors_stackplot = [  "tab:orange",  "tab:blue", "tab:green", "tab:red","black","tab:grey" ]
-colors_stackplot = [  viridis(0.95),  viridis(0.6), viridis(0.45),"grey","black",viridis(0.2)]
+#colors_stackplot = [  "tab:orange",  "tab:blue", "tab:green", "tab:red","black","tab:grey" ]
+colors_stackplot = [  viridis(0.95),  viridis(0.6), viridis(0.45),"red","orange",viridis(0.2)]
 #colors_stackplot = [pastel[8], pastel[0], pastel[2], pastel[3],  pastel[7], pastel[5]]
 #colors_stackplot = ['#9EE09E', '#9EC1CF', '#FDFD97', '#FF6663', pastel[7], '#FEB144']
 #colors_stackplot = ['#1e3378', '#009bdb', '#00ae9d', '#f1666a', '#8197a6', 'black']
@@ -421,12 +386,12 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9,5),)
 #p2 = ax2.stackplot(ilmenite_grade_list, energy_list, colors = colors_stackplot, labels = legend_stackplot)
 
 barwidth = 12/len(ilmenite_grade_list)
-p2=ax2.bar(ilmenite_grade_list, energy_list[0], color=colors_stackplot[0], label='Storage', width = barwidth)
-p3=ax2.bar(ilmenite_grade_list, energy_list[1], bottom=energy_list[0], color=colors_stackplot[1], label='Liquefaction', width = barwidth)
-p4=ax2.bar(ilmenite_grade_list, energy_list[2], bottom=energy_list[0]+energy_list[1], color=colors_stackplot[2], label='Electrolysis', width = barwidth)
-p5=ax2.bar(ilmenite_grade_list, energy_list[3], bottom=energy_list[0]+energy_list[1]+energy_list[2], color=colors_stackplot[3], label='Reactor', width = barwidth)
-p6=ax2.bar(ilmenite_grade_list, energy_list[4], bottom=energy_list[0]+energy_list[1]+energy_list[2]+energy_list[3], color=colors_stackplot[4], label='Transportation', width = barwidth)
-p7=ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_list[1]+energy_list[2]+energy_list[3]+energy_list[4], color=colors_stackplot[5], label='Excavation', width = barwidth)
+p2=ax2.bar(ilmenite_grade_list, energy_list[0], color=colors_stackplot[0], label=legend_stackplot[0], width = barwidth)
+p3=ax2.bar(ilmenite_grade_list, energy_list[1], bottom=energy_list[0], color=colors_stackplot[1], label=legend_stackplot[1], width = barwidth)
+p4=ax2.bar(ilmenite_grade_list, energy_list[2], bottom=energy_list[0]+energy_list[1], color=colors_stackplot[2], label=legend_stackplot[2], width = barwidth)
+p5=ax2.bar(ilmenite_grade_list, energy_list[3], bottom=energy_list[0]+energy_list[1]+energy_list[2], color=colors_stackplot[3], label=legend_stackplot[3], width = barwidth)
+p6=ax2.bar(ilmenite_grade_list, energy_list[4], bottom=energy_list[0]+energy_list[1]+energy_list[2]+energy_list[3], color=colors_stackplot[4], label=legend_stackplot[4], width = barwidth)
+p7=ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_list[1]+energy_list[2]+energy_list[3]+energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width = barwidth)
 
 ax2.grid(axis = "y") 
 ax2.set_title("B", loc="left", fontsize = 20)
@@ -461,6 +426,20 @@ plt.savefig('Result_figure.png', dpi=200, bbox_inches='tight')
 plt.show()
 plt.close()
 
+
+
+
+#Define fitting function for energy as function of ilmenite %
+def func(i,a,c):
+    return a/i + c
+#use curve_fit from scipy.optimize to fit the fitting function to the data
+#outcomes are popt (optimal parameters)
+popt, pcov = curve_fit(func, ilmenite_grade_list, energy_as_func_of_ilmenite_list)
+#Evaluate and plot function with the optimal parameters
+#print(popt[0],popt[1])
+funcdata_energy_as_function_of_ilmenite = func(ilmenite_grade_list,popt[0],popt[1])
+#plt.plot(ilmenite_grade_list,funcdata_energy_as_function_of_ilmenite,label="energy as function of ilmenite %")
+#plt.show()
 
 
 print("\n end")

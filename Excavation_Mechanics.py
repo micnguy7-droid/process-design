@@ -1,4 +1,3 @@
-
 author: DD
 Version 1.0
 Testing mod
@@ -7,21 +6,12 @@ Testing mod
 import numpy as np
 import math as ma
 from mpmath import cot
-
-#Excavation parameters
-depthM = 0.025 # m
-trenchDepthM = 0.1  # m
-radiusM = 0.15  # m
-extAngle = 10  # deg
-intAngle = 45  # deg
-cohCoeff = 2000  # Pa
-
 def excavationMechanics(depth_m, trench_depth_m, radius_m, ext_angle, int_angle, coh_coeff):
     phi = int_angle*ma.pi/180   # Internal fiction angle (rad) 
     delta = ext_angle*ma.pi/180   # External friction angle (rad)
     g = 1.622   # Lunar gravity, m/s^2
-    rho_N = 1800    # Max regolith density, kg/m^3
-    rho_0 = 1100    # Min regolith density, kg/m^3
+    rho_N = 1800    # Max regolith density
+    rho_0 = 1100    # Min regolith density
     H = 0.06   # Constant parameter for density function
     gamma = rho_N - (rho_N - rho_0)*ma.exp(-(trench_depth_m+depth_m)/H);  # density calculation
     C = coh_coeff # Cohesion coefficient (Pa)
@@ -37,13 +27,8 @@ def excavationMechanics(depth_m, trench_depth_m, radius_m, ext_angle, int_angle,
     exc_vars = [radius_m, r, depth_m]
     exc_vars2 = [w, alpha_b, beta, s, e_b]
     
-    massReg = 90 # Mass of regolith, kg, max of excavator
-    
     F_dig = Balovnev(reg_vars, reg_vars2, exc_vars, exc_vars2)      # Excavation force calculation, N
-    digDistance = massReg/(gamma*w*depth_m)
-    E_dig = F_dig*digDistance/massReg # Excavation energy per kg regolith
-    dig_outputs = [F_dig, E_dig]
-    return dig_outputs
+    return F_dig
 
 def Balovnev(reg_vars, reg_vars2, exc_vars, exc_vars2):
     f = reg_vars[0]
@@ -118,6 +103,4 @@ def A_prime(x,f,d):
         ma.exp((2*x - ma.pi + d + ma.asin(ma.sin(d)/ma.sin(f)))*ma.tan(f)))
     return ans
 
-digOutputs = excavationMechanics(depthM, trenchDepthM, radiusM, extAngle, intAngle, cohCoeff)
-Alpha = 2.77778e-7*digOutputs[1]  #kWh/kg
-
+F = excavationMechanics(0.025, 0.1, 0.15, 10, 45, 2000)
