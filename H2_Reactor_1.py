@@ -479,14 +479,14 @@ df.to_csv("rego_heat_list.csv", sep=';',index=False)
 #print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
 #print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
 #print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
-print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
+'''print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
 print(ilmenite_conversion_percentage)
 energy_comparison = plt.figure()
 energy_sinks = ["energy to heat H2", "energy to heat insulation", "energy endothermic reaction", "heat lost over insulation", "energy to heat up regolith"]
 energies = [energy_to_heat_hydrogen, total_energy_to_heat_insulation, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_regolith_batch]
 plt.bar(energy_sinks, energies)
 plt.ylabel('kWh')
-plt.show()
+plt.show()'''
 
 #What is missing:
 #- think about temperature of inner insulation and whether to lower it, 3 energiebilanzen aufstellen, erstmal mit Qrad usw. und gucken ob über gleichungssystem lösbar
