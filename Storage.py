@@ -30,7 +30,7 @@ MOLAR_MASS_O2                           = 32                #[g/mole]
 "=================Variables=================="
 
 LOX_tank = {"steel_wall" : { #steel tank wall
-                "inner_radius" : 0.481,#[m] Calculated depending on how much LOX is produced during the 2 weeks storage time
+                "inner_radius" : 0.916,#[m] Calculated depending on how much LOX is produced during the 2 weeks storage time
                 "thickness" :  0.004,#[m]
                 "outer_radius" : 0,#[m]
                 "mass" : 0,#[kg]
@@ -459,7 +459,7 @@ def __main__():
     zero_boil_off_system_power_consumption()
     
     "================READOUTS==============="
-    #print("LOX_mass =", LOX_tank["liquid_oxygen"]["mass"])
+    print("LOX_mass =", LOX_tank["liquid_oxygen"]["mass"])
     #print("mLOX_produced_in_storage_time = ", zero_boil_off_system["mLOX_produced_in_storage_time"])
     #print("Q_flux_into_tank_sunlight =", heat_fluxes["Q_flux_into_tank_sunlight"])
     #print("Q_flux_into_tank_shadow =", heat_fluxes["Q_flux_into_tank_shadow"])
