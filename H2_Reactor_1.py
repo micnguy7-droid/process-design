@@ -100,7 +100,7 @@ def ilmenite_to_water_conversion():
     # The conversion % depends strongly on the reaction time
 
     # Import the ilmenite conversion csv file
-    with open("Ilmenite_conversion.csv", "r") as i:
+    with open(os.path.join("data", "Ilmenite_conversion.csv"), "r") as i:
         # save data into list
         ilmenite_conversion_rawdata = list(csv.reader(i, delimiter=";"))
 
@@ -309,12 +309,12 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch):
     # Energy to heat regolith batch
 
     # Import Cp(T) data of lunar regolith
-    with open("Cp_Data_Lunar_Regolith.csv", "r") as i:
+    with open(os.path.join("data", "Cp_Data_Lunar_Regolith.csv"), "r") as i:
         # save data into list
         Cp_rawdata = list(csv.reader(i, delimiter=";"))
 
     # Import Cp(T) data of ilmenite
-    with open("Cp_Data_Ilmenite.csv", "r") as i:
+    with open(os.path.join("data", "Cp_Data_Ilmenite.csv"), "r") as i:
         # save data into list
         Cp_ilmenite_rawdata = list(csv.reader(i, delimiter=";"))
 
@@ -499,7 +499,7 @@ for i in range(1, 99):
 df = pandas.DataFrame(
     data={"ilmenite_head_grade": ilmenite_grade_list, "rego_heat": rego_heat_list})
 #file_path = cwd+"/rego_heat_list.csv"
-df.to_csv("rego_heat_list.csv", sep=';', index=False)
+df.to_csv(os.path.join("data", "rego_heat_list.csv"), sep=';', index=False)
 # print(file_path)
 
 'READOUTS and GRAPHS'
