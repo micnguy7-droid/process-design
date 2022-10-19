@@ -11,7 +11,7 @@ energy_w_ilmenite = []
 energy_slice = []
 
 for n in range(0, N): 
-    cryocooler_efficiency = random.uniform(0, 1)
+    cryocooler_efficiency = random.uniform(0.05, 0.4)
     system_efficiency = random.uniform(0.5, 0.7)
     ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy = energy_as_func_of_ilmenite(cryocooler_efficiency=cryocooler_efficiency, system_efficiency=system_efficiency)
 
