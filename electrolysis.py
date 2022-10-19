@@ -14,7 +14,7 @@ system_efficiency = 0.6  # [-] (from HyLYZER datasheet)
 efficiency_reduction = 0.11  # [-] (from Beth Lomax paper)
 
 
-def electrolysis_energy_per_mol(system_efficiency = 0.6, verbose=False):
+def electrolysis_energy_per_mol_H2O(system_efficiency = 0.6, verbose=False):
     """Calculate electrolysis energy per mol
 
     Args:
