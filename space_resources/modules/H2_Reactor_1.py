@@ -31,7 +31,7 @@ import modules.beneficiation_placeholder as beneficiation_placeholder
 from modules.beneficiation_placeholder import *
 
 SOLAR_INPUT                             = 1361  # [W/m^2]
-σ = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
+sigma = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
 EMISSIVITY_LUNAR_SURFACE = 0.95  # [-]
 REFLECTIVITY_LUNAR_SURFACE = 0.15  # [-]
 VIEW_FACTOR_SUN_REACTOR = 0.5  # [-]
@@ -239,10 +239,10 @@ def solar_and_lunar_heat_flux_calculation(surface_area_outer_HTMLI, view_factor_
     Q_flux_solar = SOLAR_INPUT * VIEW_FACTOR_SUN_REACTOR * \
         surface_area_outer_HTMLI * ABSORBTIVITY_HTMLI  # [W]
     # Heat flux coming from lunar surface to outer HTMLI surface
-    Q_flux_lunar_surface_sunlight = (σ * T_LUNAR_SURFACE_IN_SUNLIGHT**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
+    Q_flux_lunar_surface_sunlight = (sigma * T_LUNAR_SURFACE_IN_SUNLIGHT**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
                                      REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI  # [W]
     # Heat flux coming from lunar surface to outer HTMLI surface
-    Q_flux_lunar_surface_shadow = (σ * T_LUNAR_SURFACE_IN_SHADOW**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
+    Q_flux_lunar_surface_shadow = (sigma * T_LUNAR_SURFACE_IN_SHADOW**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
                                    REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI  # [W]
 
     return Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow
@@ -253,7 +253,7 @@ def outer_surface_heat_balance(Q_flux_lunar_surface_shadow, inner_radius_CFI, ou
     # Calculation of T_outer_surface_HTMLI (in sunlight) by doing heat balance around outer surface of HTMLI
     def function1(T_outer_surface_HTMLI):
         x = (Q_flux_lunar_surface_shadow + (T_inner_wall_CFI - T_outer_surface_HTMLI)*4*math.pi
-             / ((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - σ * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
+             / ((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - sigma * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
         return x
     T_outer_surface_HTMLI = float(scipy.optimize.fsolve(function1, 400))
 
@@ -263,7 +263,7 @@ def outer_surface_heat_balance(Q_flux_lunar_surface_shadow, inner_radius_CFI, ou
 def radiative_and_conductive_heat_flux_calculation(T_outer_surface_HTMLI, surface_area_outer_HTMLI, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI):
 
     # Calculation of heat that is radiated into space and heat that is lost over reactor walls
-    Q_flux_radiation_HTMLI = σ * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * \
+    Q_flux_radiation_HTMLI = sigma * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * \
         EMISSIVITY_HTMLI  # [W] Radiative heat flux from HTMLI to space
 
     # Heat flux from the inner wall of insulation to outside
@@ -287,7 +287,7 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
         # Calculation of T_outer_surface_HTMLI_heat_up (in sunlight) by doing heat balance around outer surface of HTMLI
         def function2(T_outer_surface_HTMLI_heat_up):
             x = (Q_flux_lunar_surface_shadow + (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi
-                 / ((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - σ * T_outer_surface_HTMLI_heat_up**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
+                 / ((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - sigma * T_outer_surface_HTMLI_heat_up**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
             return x
         T_outer_surface_HTMLI_heat_up = float(
             scipy.optimize.fsolve(function2, 400))

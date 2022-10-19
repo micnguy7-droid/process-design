@@ -20,7 +20,7 @@ from scipy.optimize import curve_fit, fsolve
 
 
 SOLAR_INPUT = 1361  # [W/m^2]
-σ = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
+sigma = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant 😀
 VIEW_FACTOR_SUN_TANK = 0.5  # [-]
 LUNAR_GRAVITY = 1.625  # [m/s^2]
 # [J/(kg*K)] Assumed to be constant (conservative assumption)
@@ -278,10 +278,10 @@ def solar_and_lunar_heat_flux_calculation():
     Q_flux_solar = SOLAR_INPUT * VIEW_FACTOR_SUN_TANK * \
         vip_outer_surface_area  # [W]
     # Heat flux coming from lunar surface to tank
-    Q_flux_lunar_surface_sunlight = (σ * lunar_surface_temperature_in_sunlight**4 * lunar_surface_emissivity +
+    Q_flux_lunar_surface_sunlight = (sigma * lunar_surface_temperature_in_sunlight**4 * lunar_surface_emissivity +
                                      SOLAR_INPUT * lunar_surface_reflectivity) * lunar_surface_relevant_area * view_factor_lunar_surface_to_tank  # [W]
     # Heat flux coming from lunar surface to tank
-    Q_flux_lunar_surface_shadow = (σ * lunar_surface_temperature_in_shadow**4 * lunar_surface_emissivity) * \
+    Q_flux_lunar_surface_shadow = (sigma * lunar_surface_temperature_in_shadow**4 * lunar_surface_emissivity) * \
         lunar_surface_relevant_area * view_factor_lunar_surface_to_tank  # [W]
 
     # RETURNING VALUES TO DICTIONARY
@@ -321,7 +321,7 @@ def outer_surface_heat_balance():
 
     def heat_balance_in_sunlight(temperature_outer_surface_in_sunlight):
         x = (Q_flux_solar + Q_flux_lunar_surface_sunlight + steel_wall_thermal_conductivity * support_beam_cross_section_area * (lunar_surface_temperature_in_sunlight - temperature_outer_surface_in_sunlight)/support_beam_length
-             - (σ * temperature_outer_surface_in_sunlight**4 * vip_outer_surface_area *
+             - (sigma * temperature_outer_surface_in_sunlight**4 * vip_outer_surface_area *
                 vip_emissivity + (Q_flux_solar + Q_flux_lunar_surface_sunlight) * vip_reflectivity)
              - (temperature_outer_surface_in_sunlight - LOX_temperature)*4*math.pi/(1/(heat_transfer_coefficient * steel_wall_inner_radius**2) + (1/vip_inner_radius - 1/vip_outer_radius)/vip_thermal_conductivity
                                                                                     + (1/steel_wall_inner_radius - 1/steel_wall_outer_radius)/steel_wall_thermal_conductivity))
@@ -332,7 +332,7 @@ def outer_surface_heat_balance():
 
     def heat_balance_in_shadow(temperature_outer_surface_in_shadow):
         x = (Q_flux_lunar_surface_shadow + steel_wall_thermal_conductivity * support_beam_cross_section_area * (lunar_surface_temperature_in_shadow - temperature_outer_surface_in_shadow)/support_beam_length
-             - (σ * temperature_outer_surface_in_shadow**4 * vip_outer_surface_area *
+             - (sigma * temperature_outer_surface_in_shadow**4 * vip_outer_surface_area *
                 vip_emissivity + (Q_flux_lunar_surface_shadow) * vip_reflectivity)
              - (temperature_outer_surface_in_shadow - LOX_temperature)*4*math.pi/(1/(heat_transfer_coefficient * steel_wall_inner_radius**2) + (1/vip_inner_radius - 1/vip_outer_radius)/vip_thermal_conductivity
                                                                                   + (1/steel_wall_inner_radius - 1/steel_wall_outer_radius)/steel_wall_thermal_conductivity))
