@@ -1,7 +1,7 @@
 {
     "cryocooler_efficiency": {
         "value": 0.1,
-        "range": [0,1],
+        "range": [0, 1],
         "dtype": "int"
     },
     "system_efficiency": {
