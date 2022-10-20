@@ -14,11 +14,20 @@ system_efficiency = 0.6  # [-] (from HyLYZER datasheet)
 efficiency_reduction = 0.11  # [-] (from Beth Lomax paper)
 
 
-# CALCULATION
-total_efficiency = system_efficiency - (system_efficiency*efficiency_reduction)
-electrolysis_energy_per_kg_H2 = energy_content_H2/total_efficiency
-electrolysis_energy_per_mol_H2 = electrolysis_energy_per_kg_H2 * molar_weight_H2
-electrolysis_energy_per_mol_H2O = electrolysis_energy_per_mol_H2
+def electrolysis_energy_per_mol_H2O(system_efficiency = 0.6, verbose=False):
+    """Calculate electrolysis energy per mol
 
+    Args:
+        system_efficiency (float, optional): System efficiency. Defaults to 0.6.
 
-# print(electrolysis_energy_per_mol_H2O)
+    Returns:
+        float: Electrolysis energy per mol
+    """
+    total_efficiency = system_efficiency - (system_efficiency*efficiency_reduction)
+    electrolysis_energy_per_kg_H2 = energy_content_H2/total_efficiency
+    electrolysis_energy_per_mol_H2 = electrolysis_energy_per_kg_H2 * molar_weight_H2
+    electrolysis_energy_per_mol_H2O = electrolysis_energy_per_mol_H2
+
+    if verbose:
+        print('electrolysis_energy_per_mol_H2O', electrolysis_energy_per_mol_H2O)
+    return electrolysis_energy_per_mol_H2O
