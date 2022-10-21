@@ -27,10 +27,10 @@ import scipy
 from scipy import integrate
 from scipy.optimize import curve_fit, fsolve
 
-import modules.beneficiation_placeholder as beneficiation_placeholder
-from modules.beneficiation_placeholder import *
+#import modules.beneficiation_placeholder as beneficiation_placeholder
+#from modules.beneficiation_placeholder import *
 
-SOLAR_INPUT                             = 1361  # [W/m^2]
+SOLAR_INPUT = 1361  # [W/m^2]
 sigma = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
 EMISSIVITY_LUNAR_SURFACE = 0.95  # [-]
 REFLECTIVITY_LUNAR_SURFACE = 0.15  # [-]
@@ -61,8 +61,8 @@ HEAT_CAPACITY_HTMLI = 910
 # Variables
 
 
-CFI_thickness = 0.05  # [m] Ceramic insulation thickness
-HTMLI_thickness = 0.05  # [m] HTMLI insulation thickness
+CFI_thickness = 0.06  # [m] Ceramic insulation thickness
+HTMLI_thickness = 0.06  # [m] HTMLI insulation thickness
 reactor_height_above_surface = 1  # [m]
 relevant_lunar_surface_radius = 10  # [m]
 relevant_lunar_surface_area = math.pi * \
@@ -80,7 +80,9 @@ ilmenite_percentage_for_reactor_sizing = 0.5
 # Reactor Heat-up variables
 
 # [K] Temperature of regolith during reduction
-T_reduction_regolith_batch = 1173
+T_reduction_regolith_batch = 1173 # [K]
+delta_T_insulation  = 200 # [K]
+T_regolith_in = 273 # [K]
 
 # times:
 reactor_loading_time = 0.5  # [h]
@@ -211,9 +213,9 @@ def energy_to_heat_insulation_func(reactor_CFI_insulation_mass, reactor_HTMLI_in
 
     # Energy to heat up insulation 200 K (That is the temperature the insulation is assumed to cool down between batches)
     energy_to_heat_CFI_insulation = HEAT_CAPACITY_CFI * \
-        reactor_CFI_insulation_mass * (200)/(3.6e6)  # [kWh]
+        reactor_CFI_insulation_mass * (delta_T_insulation)/(3.6e6)  # [kWh]
     energy_to_heat_HTMLI = HEAT_CAPACITY_HTMLI * \
-        reactor_HTMLI_insulation_mass * (200)/(3.6e6)  # [kWh]
+        reactor_HTMLI_insulation_mass * (delta_T_insulation)/(3.6e6)  # [kWh]
     total_energy_to_heat_insulation = energy_to_heat_CFI_insulation + \
         energy_to_heat_HTMLI  # [kWh]
 
@@ -279,10 +281,11 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
     # [K] Temperature of incoming regolith batch
     T_incoming_regolith_batch = 273
     # [K]+500 because Insulation is assumed to still be hot from last batch
+    T_inner_wall_CFI_heat_up_0 = T_incoming_regolith_batch+500 # Temperature of inner wall of insulation at t_0
     T_inner_wall_CFI_heat_up = T_incoming_regolith_batch+500
     Q_out_added_heat_up = 0
     t = 0
-    while t <= 4:
+    while t <= (reactor_heat_up_time_in_hours-1):
 
         # Calculation of T_outer_surface_HTMLI_heat_up (in sunlight) by doing heat balance around outer surface of HTMLI
         def function2(T_outer_surface_HTMLI_heat_up):
@@ -291,15 +294,16 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
             return x
         T_outer_surface_HTMLI_heat_up = float(
             scipy.optimize.fsolve(function2, 400))
-
+        
         # Heat flux from the inner wall of insulation to outside
         Q_flux_out_heat_up = (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi/(
             (1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)  # [W]
 
         # The heat flux is added up for every second, which results in the total heat lost during heat up
         Q_out_added_heat_up += Q_flux_out_heat_up * 3600
-        T_inner_wall_CFI_heat_up += 100
-
+        # The temperature at the inner insulation is increased by how much the reactor temperature is going up in 1 hour
+        T_inner_wall_CFI_heat_up += (T_reduction_regolith_batch-T_inner_wall_CFI_heat_up_0)/(reactor_heat_up_time_in_hours-1)
+    
         t += 1
 
     return Q_out_added_heat_up
@@ -366,7 +370,7 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch):
     plt.show()'''
 
     # integrate from starting to end temperature to get total heat needed to heat up 1 kg of regolith
-    I = integrate.quad(func_ilmenite, 273, 1173, args=(
+    I = integrate.quad(func_ilmenite, T_regolith_in, T_reduction_regolith_batch, args=(
         popt[0]+140*(1-ilmenite_percentage), popt[1], popt[2], popt[3], popt[4], popt[5]))  # Joules
     #print("Integral =",I)
 
@@ -525,14 +529,14 @@ df.to_csv(os.path.join("data", "rego_heat_list.csv"), sep=';', index=False)
 #print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
 #print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
 # print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
-'''print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
+print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
 print(ilmenite_conversion_percentage)
 energy_comparison = plt.figure()
 energy_sinks = ["energy to heat H2", "energy to heat insulation", "energy endothermic reaction", "heat lost over insulation", "energy to heat up regolith"]
 energies = [energy_to_heat_hydrogen, total_energy_to_heat_insulation, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_regolith_batch]
 plt.bar(energy_sinks, energies)
 plt.ylabel('kWh')
-plt.show()'''
+plt.show()
 
 # What is missing:
 # - think about temperature of inner insulation and whether to lower it, 3 energiebilanzen aufstellen, erstmal mit Qrad usw. und gucken ob über gleichungssystem lösbar

@@ -90,7 +90,7 @@ zero_boil_off_system = {"cryocooler_efficiency": 0.1,  # [-]
                         "T_cold_reservoir_carnot_cycle": 80,  # [-]
                         # [-] Based on ISS radiators
                         "T_hot_reservoir_carnot_cycle": 233,
-                        # [hours] We assume 1 month of storage time
+                        # [hours] We assume 14 days of storage time
                         "LOX_storage_time": 336,
                         # [kg] We assume a production rate of 100 t/year = 274 kg/day
                         "mLOX_produced_in_storage_time": 3846,
