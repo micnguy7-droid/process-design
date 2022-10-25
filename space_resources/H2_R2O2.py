@@ -57,8 +57,8 @@ colors_stackplot = [viridis(0.95),  viridis(
 # colors_stackplot = ['#1e3378', '#009bdb', '#00ae9d', '#f1666a', '#8197a6', 'black']
 
 # create figure
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 5),)
-
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9, 5))
+fig2, (ax3, ax4) = plt.subplots(nrows=1, ncols=2, figsize=(9, 5))
 
 # create stackplot
 #p2 = ax2.stackplot(ilmenite_grade_list, energy_list, colors = colors_stackplot, labels = legend_stackplot)
@@ -78,7 +78,8 @@ p7 = ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_l
              energy_list[3]+energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width=barwidth)
 
 ax2.grid(axis="y")
-ax2.set_title("B", loc="left", fontsize=20)
+ax2.set_title("Energy requirements as a function of ilmenite %",
+              loc="left", fontsize=11)
 ax2.set_xlabel("Ilmenite %")
 ax2.set_ylabel('kWh/kg LOX')
 ax2.set_xlim((0.75, 15.25))
@@ -87,7 +88,8 @@ ax2.legend()
 # create bar plot
 p1 = ax1.bar(energy_consumers_full, energy, color=colors_bars)
 ax1.grid(axis="y")
-ax1.set_title("A", loc="left",  fontsize=20)
+ax1.set_title("Energy comparison across different modules (10% Ilmenite)",
+              loc="left",  fontsize=11)
 ax1.set_ylabel('kWh/kg LOX')
 
 index = -1
@@ -102,27 +104,71 @@ for bar in p1:
              ha='center',
              weight='bold')
 
-#Plot reactor energy sinks comparison
-reactor_energy_sinks = ["Energy to heat H2", "Energy to heat insulation", "Energy endothermic reaction", "Heat lost over insulation", "Energy to heat up regolith"]
-reactor_energies = [energy_to_heat_hydrogen_at_10_perc_ilm, total_energy_to_heat_insulation_at_10_perc_ilm, energy_endothermic_ilmenite_H2_reaction_at_10_perc_ilm, Q_total_lost_at_10_perc_ilm, energy_to_heat_regolith_batch_at_10_perc_ilm]
-p3 = ax3.bar(reactor_energy_sinks, reactor_energies)
+# Plot reactor energy sinks comparison
+reactor_energy_sinks = ["Hydrogen heating", "Insulation heating",
+                        "Endothermic reaction", "Insulation heat loss", "Regolith heat up"]
+reactor_energies = [energy_to_heat_hydrogen_at_10_perc_ilm, total_energy_to_heat_insulation_at_10_perc_ilm,
+                    energy_endothermic_ilmenite_H2_reaction_at_10_perc_ilm, Q_total_lost_at_10_perc_ilm, energy_to_heat_regolith_batch_at_10_perc_ilm]
+reactor_colors = ['red','black','green','blue','grey']
+
+p3 = ax3.bar(reactor_energy_sinks, reactor_energies, color = reactor_colors)
 ax3.grid(axis="y")
-ax3.set_title("C", loc="left",  fontsize=20)
+ax3.set_title("Reactor energy requirements comparison (10 %Ilmenite)",
+              loc="left",  fontsize=11)
 ax3.set_ylabel('kWh/kg LOX')
 
 
+# Plot reactor energy sinks comparison over ilmenite %
+
+# Convert lists to numpy arrays
+energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[6:96:3])
+total_energy_to_heat_insulation_list = np.array(
+    total_energy_to_heat_insulation_list[6:96:3])
+energy_endothermic_ilmenite_H2_reaction_list = np.array(
+    energy_endothermic_ilmenite_H2_reaction_list[6:96:3])
+Q_total_lost_list = np.array(Q_total_lost_list[6:96:3])
+energy_to_heat_regolith_batch_list = np.array(
+    energy_to_heat_regolith_batch_list[6:96:3])
+
+energy_list_reactor = np.sum([energy_to_heat_hydrogen_list,total_energy_to_heat_insulation_list,energy_endothermic_ilmenite_H2_reaction_list,Q_total_lost_list,energy_to_heat_regolith_batch_list],axis=0)
+
+'''energy_to_heat_hydrogen_list= np.divide(energy_to_heat_hydrogen_list,energy_list_reactor)
+total_energy_to_heat_insulation_list= np.divide(total_energy_to_heat_insulation_list,energy_list_reactor)
+energy_endothermic_ilmenite_H2_reaction_list= np.divide(energy_endothermic_ilmenite_H2_reaction_list,energy_list_reactor)
+Q_total_lost_list= np.divide(Q_total_lost_list,energy_list_reactor)
+energy_to_heat_regolith_batch_list= np.divide(energy_to_heat_regolith_batch_list,energy_list_reactor)'''
+
+
+barwidth_2 = 12/len(ilmenite_grade_list)
+b1 = ax4.bar(ilmenite_grade_list,
+             energy_to_heat_hydrogen_list, color='red', label=reactor_energy_sinks[0], width=barwidth)
+b2 = ax4.bar(ilmenite_grade_list, total_energy_to_heat_insulation_list,
+             bottom=energy_to_heat_hydrogen_list, color='black', label=reactor_energy_sinks[1], width=barwidth)
+b3 = ax4.bar(ilmenite_grade_list, energy_endothermic_ilmenite_H2_reaction_list, bottom=energy_to_heat_hydrogen_list
+             + total_energy_to_heat_insulation_list, color='green', label=reactor_energy_sinks[2], width=barwidth)
+b4 = ax4.bar(ilmenite_grade_list, Q_total_lost_list, bottom=energy_to_heat_hydrogen_list + total_energy_to_heat_insulation_list +
+             energy_endothermic_ilmenite_H2_reaction_list, color='blue', label=reactor_energy_sinks[3], width=barwidth)
+b4 = ax4.bar(ilmenite_grade_list, energy_to_heat_regolith_batch_list, bottom=energy_to_heat_hydrogen_list + total_energy_to_heat_insulation_list +
+             energy_endothermic_ilmenite_H2_reaction_list+Q_total_lost_list, color='grey', label=reactor_energy_sinks[4], width=barwidth)
+ax4.legend()
+ax4.grid(axis="y")
+ax4.set_xlabel("Ilmenite %")
+ax4.set_ylabel('kWh/kg LOX')
+ax4.set_xlim((0.75, 15.25))
+ax4.set_title("Reactor energy requirements comparison as a function of ilmenite %",loc="left",  fontsize=11)
+
+
 fig.autofmt_xdate()
+fig2.autofmt_xdate()
 plt.setp(ax2.xaxis.get_majorticklabels(), rotation=0,
          ha="center", rotation_mode="anchor")
+plt.setp(ax4.xaxis.get_majorticklabels(), rotation=0,
+         ha="center", rotation_mode="anchor")
 #plt.suptitle('Energy comparison between different process steps')
-plt.subplots_adjust(wspace=0.3)
+plt.subplots_adjust(wspace=0.3, hspace=0.5)
 plt.savefig('Result_figure.png', dpi=200, bbox_inches='tight')
 plt.show()
 plt.close()
-
-
-
-
 
 
 # Define fitting function for energy as function of ilmenite %

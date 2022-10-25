@@ -440,6 +440,12 @@ def power_requirements(total_energy_to_heat_insulation, energy_to_heat_regolith_
 
 ilmenite_grade_list = []
 rego_heat_list = []
+energy_to_heat_hydrogen_list = []
+total_energy_to_heat_insulation_list = []
+energy_endothermic_ilmenite_H2_reaction_list = []
+Q_total_lost_list = []
+energy_to_heat_regolith_batch_list = []
+
 
 for i in range(1, 99):
 
@@ -499,6 +505,13 @@ for i in range(1, 99):
     rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
     ilmenite_grade_list.append(i)
 
+    energy_to_heat_hydrogen_list.append(energy_to_heat_hydrogen/oxygen_out_kg_batch)
+    total_energy_to_heat_insulation_list.append(total_energy_to_heat_insulation/oxygen_out_kg_batch)
+    energy_endothermic_ilmenite_H2_reaction_list.append(energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch)
+    Q_total_lost_list.append(Q_total_lost/oxygen_out_kg_batch)
+    energy_to_heat_regolith_batch_list.append(energy_to_heat_regolith_batch/oxygen_out_kg_batch)
+
+   
 
     #We want to compare the energy sinks in the reactor to each other at 10% ilmenite. With enrichment factor of 6, 
     #we need to get the values from ilmenite percentage = 60%
@@ -510,6 +523,11 @@ for i in range(1, 99):
         energy_to_heat_regolith_batch_at_10_perc_ilm = energy_to_heat_regolith_batch/oxygen_out_kg_batch
 
 
+#print(energy_to_heat_hydrogen_list)
+#print(total_energy_to_heat_insulation_list)
+#print(energy_endothermic_ilmenite_H2_reaction_list)
+#print(Q_total_lost_list)
+#print(energy_to_heat_regolith_batch_list)
 
 #cwd = os.getcwd()
 df = pandas.DataFrame(
