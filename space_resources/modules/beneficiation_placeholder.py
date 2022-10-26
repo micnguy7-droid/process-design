@@ -9,13 +9,13 @@ DL Test comment 1
 
 class Benef_class():
 
-    def __init__(self, B_in_regolith, pre_benef_ilmenite_grade):
+    def __init__(self, B_in_regolith, pre_benef_ilmenite_grade, enrichment_factor = 6, benef_ilmenite_recovery = 0.51):
 
         self.B_in_regolith = B_in_regolith
         self.pre_benef_ilmenite_grade = pre_benef_ilmenite_grade
 
-        self.enrichment_factor = 6
-        self.benef_ilmenite_recovery = 0.51
+        self.enrichment_factor = enrichment_factor
+        self.benef_ilmenite_recovery = benef_ilmenite_recovery
 
         self.B_in_ilmenite = self.B_in_regolith * self.pre_benef_ilmenite_grade
         self.B_out_ilmenite = self.B_in_ilmenite * self.benef_ilmenite_recovery

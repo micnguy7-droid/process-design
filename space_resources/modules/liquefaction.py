@@ -11,7 +11,8 @@ Created on Thu Aug 11 11:34:24 2022
 
 # liquefaction unit data
 T_cold_reservoir_carnot_cycle = 80  # [K]
-T_hot_reservoir_carnot_cycle = 233  # [K] based on ISS radiators
+
+# [K] T_hot_reservoir_carnot_cycle is based on ISS radiators
 
 # oxygen data
 T_of_incoming_oxygen = 340  # [K]
@@ -21,7 +22,7 @@ vaporization_enthalpy_oxygen = 6800  # [J/mol]
 
 # CALCULATION
 
-def liquefaction(cryocooler_efficiency = 0.1):
+def liquefaction(cryocooler_efficiency = 0.1, T_hot_reservoir_carnot_cycle = 233, T_of_incoming_oxygen = 340):
     COP_carnot = T_cold_reservoir_carnot_cycle / \
         (T_hot_reservoir_carnot_cycle - T_cold_reservoir_carnot_cycle)
     COP = cryocooler_efficiency * COP_carnot

@@ -25,7 +25,7 @@ from modules.transportation import *
 forloops = False
 
 
-def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.6):
+def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.6, enrichment_factor = 6, benef_ilmenite_recovery= 0.51, motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, T_of_incoming_oxygen=340, vip_thickness=0.025):
     'user parameters'
     '====================================='
 
@@ -37,12 +37,12 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
 
     # (1) Energy cost parameters      # DUMMY NUMBERS currently 18/6/2022
     rego_exca = Alpha    # kWh/kg-regolith      (alpha)
-    rego_tran = Beta    # kWh/kg-regolith/km   (beta)
+    rego_tran = get_Beta(motor_efficiency=motor_efficiency,mRover=mRover)    # kWh/kg-regolith/km   (beta)
     # kWh/kg-regolith      (zeta)
     rego_heat = total_energy_used_by_reactor_per_kg_regolith
     water_elec = electrolysis_energy_per_mol_H2O(system_efficiency)  # kWh/mol-water        (theta)
-    dioxy_liq = liquefaction(cryocooler_efficiency)    # kWh/mol-dioxygen     (psi)
-    storage_cooling = zero_boil_off_system["Energy_per_kg_LOX"]  # kWh/mol-dioxygen
+    dioxy_liq = liquefaction(cryocooler_efficiency, T_hot_reservoir_carnot_cycle, T_of_incoming_oxygen)    # kWh/mol-dioxygen     (psi)
+    storage_cooling = get_Energy_per_kg_LOX(vip_thickness)  # kWh/mol-dioxygen
 
 
     # (2) Mass flow conversion parameters
@@ -55,7 +55,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
     # Added by Fardin to use in reactor module
     post_benef_ilmenite_grade = pre_benef_ilmenite_grade * \
         benef_ilmenite_recovery/benef_rego_preserved
-
+    
 
     '================================== (end parameters)'
 
@@ -79,7 +79,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
 
     "add benef module "
 
-    benef1 = Benef_class(B_in_regolith, pre_benef_ilmenite_grade)
+    benef1 = Benef_class(B_in_regolith, pre_benef_ilmenite_grade, enrichment_factor, benef_ilmenite_recovery)
 
     B_out_ilmenite = benef1.B_out_ilmenite # B_in_regolith * pre_benef_ilmenite_grade
     B_out_regolith = benef1.B_out_regolith # B_in_ilmenite * benef_ilmenite_recovery
@@ -88,6 +88,8 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
     
     B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
     post_benef_ilmenite_grade = int(pre_benef_ilmenite_grade*benef1.enrichment_factor*100)
+    if(post_benef_ilmenite_grade >= 98):
+        post_benef_ilmenite_grade = 98
     # ilmenite_conversion Calculated in reactor module, depends on reaction time
     R_out_water_mols = B_out_ilmenite_mols*ilmenite_conversion
    
@@ -118,7 +120,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
     # (4.2) calculate Energy per step
     X_energy = X_in_regolith * rego_exca
     T_energy = X_in_regolith * rego_tran
-    R_energy = R_in_regolith * rego_heat_list[post_benef_ilmenite_grade+1]
+    R_energy = R_in_regolith * rego_heat_list[post_benef_ilmenite_grade-1]
     E_energy = E_in_water_mols * water_elec
     L_energy = L_in_dioxy_mols * dioxy_liq
     S_energy = S_out_dioxy_kg * storage_cooling
@@ -237,8 +239,9 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
         B_out_regolith = B_out_ilmenite + B_out_gangue
         R_in_regolith = B_out_regolith
 
-        post_benef_ilmenite_grade = int(i/2)*benef1.enrichment_factor
-
+        post_benef_ilmenite_grade = round(i/2*benef1.enrichment_factor)
+        if(post_benef_ilmenite_grade >= 98):
+            post_benef_ilmenite_grade=98
         B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
         # ilmenite_conversion Calculated in reactor module, depends on reaction time
         R_out_water_mols = B_out_ilmenite_mols*ilmenite_conversion

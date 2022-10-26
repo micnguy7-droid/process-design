@@ -78,8 +78,9 @@ p7 = ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_l
              energy_list[3]+energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width=barwidth)
 
 ax2.grid(axis="y")
-ax2.set_title("Energy requirements as a function of ilmenite %",
-              loc="left", fontsize=11)
+#ax2.set_title("Energy requirements as a function of ilmenite %",
+#              loc="left", fontsize=11)
+ax2.set_title('B', loc='left', fontsize =20)
 ax2.set_xlabel("Ilmenite %")
 ax2.set_ylabel('kWh/kg LOX')
 ax2.set_xlim((0.75, 15.25))
@@ -88,8 +89,9 @@ ax2.legend()
 # create bar plot
 p1 = ax1.bar(energy_consumers_full, energy, color=colors_bars)
 ax1.grid(axis="y")
-ax1.set_title("Energy comparison across different modules (10% Ilmenite)",
-              loc="left",  fontsize=11)
+#ax1.set_title("Energy comparison across different modules (10% Ilmenite)",
+#              loc="left",  fontsize=11)
+ax1.set_title('A', loc='left', fontsize =20)
 ax1.set_ylabel('kWh/kg LOX')
 
 index = -1
@@ -113,8 +115,9 @@ reactor_colors = ['red','black','green','blue','grey']
 
 p3 = ax3.bar(reactor_energy_sinks, reactor_energies, color = reactor_colors)
 ax3.grid(axis="y")
-ax3.set_title("Reactor energy requirements comparison (10 %Ilmenite)",
-              loc="left",  fontsize=11)
+#ax3.set_title("Reactor energy requirements comparison (10 %Ilmenite)",
+#              loc="left",  fontsize=11)
+ax3.set_title('C',loc='left', fontsize =20)
 ax3.set_ylabel('kWh/kg LOX')
 
 
@@ -155,8 +158,8 @@ ax4.grid(axis="y")
 ax4.set_xlabel("Ilmenite %")
 ax4.set_ylabel('kWh/kg LOX')
 ax4.set_xlim((0.75, 15.25))
-ax4.set_title("Reactor energy requirements comparison as a function of ilmenite %",loc="left",  fontsize=11)
-
+#ax4.set_title("Reactor energy requirements comparison as a function of ilmenite %",loc="left",  fontsize=11)
+ax4.set_title('D',loc='left', fontsize =20)
 
 fig.autofmt_xdate()
 fig2.autofmt_xdate()

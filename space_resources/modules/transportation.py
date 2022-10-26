@@ -119,7 +119,7 @@ def drawbar_pull(slip, mass, b, r, slope, l, h):
 
 
 # Function that computes the energy requirements for a rover with a given slip, mass, velocity, wheel width, wheel radius, and slope.
-def energy_requirements(slip, mass, velocity, b, r, slope, l, h):
+def energy_requirements(slip, mass, velocity, b, r, slope, l, h, motor_efficiency=0.6):
     sol_theta0_front = root_scalar(fun_to_solve_front, args=(slip, mass, slope, l, h, b, r), method='toms748', bracket=[0, 1])
     z0_front = r * (1 - math.cos(sol_theta0_front.root))
     l0_front = sol_theta0_front.root * r
@@ -145,7 +145,7 @@ def energy_requirements(slip, mass, velocity, b, r, slope, l, h):
     # Traction effort (MF010: page 306)
     Ft_front = b * r * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_front.root, args=(sol_theta0_front.root, slip, b, r))[0]
     Ft_rear = b * r * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_rear.root, args=(sol_theta0_rear.root, slip, b, r))[0]
-    print("Tractive effort on front/rear wheels:", Ft_front, "[N] /", Ft_rear, "[N]")
+    #print("Tractive effort on front/rear wheels:", Ft_front, "[N] /", Ft_rear, "[N]")
 
     # Compaction resistance with these sinkages
     Rc_front = b * (kc / b + kphi) * (z0_front ** (n + 1)) / (n + 1)  # [N]
@@ -303,6 +303,36 @@ if continueBoolean2 == 1:
     plt.xlabel('Regolith mass [kg]')
     plt.show()  # it has the expected shape!
 
+def get_Beta(motor_efficiency=0.6, mRover=67):
+
+    velocity = 0.49  # [m/s], from "RASSOR, the reduced gravity excavator."
+    mRegolith = 90  # [kg] The rover is assumed to transport the maximum amount of regolith each time (from "RASSOR, the reduced gravity excavator.").
+    WheelRadius = 0.4318 / 2  # [m] Wheel radius (17 inches for the full wheel)
+    WheelWidth = 0.1  # [m] Wheel width (from the picture?)
+    wheelbase = 0.5  # [m]
+    heightCOG = 0.1  # [m]
+    Slope = 0  # [rad] The soil is assumed to be flat
+    # The CoG is assumed to be centered
+
+    DistanceToTravel = 1000  # [m]
+    MassOutwardTrip = mRover
+    MassReturnTrip = mRover + mRegolith
+
+    # Outward trip (without regolith)
+    RequiredSlipOutward = slip_required(MassOutwardTrip, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG)
+    EnergyPerDistanceOutward = energy_requirements(RequiredSlipOutward, MassOutwardTrip, velocity, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG,motor_efficiency)  # [J/m]
+    EnergyOutward = EnergyPerDistanceOutward * DistanceToTravel  # [J]
+
+    # Return trip (with regolith)
+    RequiredSlipReturn = slip_required(MassReturnTrip, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG)
+    EnergyPerDistanceReturn = energy_requirements(RequiredSlipReturn, MassReturnTrip, velocity, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG,motor_efficiency)  # [J/m]
+    EnergyReturn = EnergyPerDistanceReturn * DistanceToTravel  # [J]
+
+    # Round trip
+    EnergyRoundTrip = EnergyOutward + EnergyReturn  # [J] for a mass of regolith of 20 [kg] (max load), and a distance of 1 [km]
+    Beta = EnergyRoundTrip/(mRegolith*DistanceToTravel*3600)  # [kWh/kg/km]
+
+    return Beta
 
 if continueBoolean3 == 1:
     velocity = 0.49  # [m/s], from "RASSOR, the reduced gravity excavator."
@@ -322,7 +352,7 @@ if continueBoolean3 == 1:
 
     # Outward trip (without regolith)
     RequiredSlipOutward = slip_required(MassOutwardTrip, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG)
-    EnergyPerDistanceOutward = energy_requirements(RequiredSlipOutward, MassOutwardTrip, velocity, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG)  # [J/m]
+    EnergyPerDistanceOutward = energy_requirements(RequiredSlipOutward, MassOutwardTrip, velocity, WheelWidth, WheelRadius, Slope, wheelbase, heightCOG,motor_efficiency)  # [J/m]
     EnergyOutward = EnergyPerDistanceOutward * DistanceToTravel  # [J]
 
     # Return trip (with regolith)
