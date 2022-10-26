@@ -226,7 +226,6 @@ def heat_transfer_coefficient_calculation():
     grashof_number = LOX_tank["liquid_oxygen"]["grashof_number"]
     nusselt_number = LOX_tank["liquid_oxygen"]["nusselt_number"]
     heat_transfer_coefficient = LOX_tank["liquid_oxygen"]["heat_transfer_coefficient"]
-
     # CALCULATION
     prandtl_number = LOX_DYNAMIC_VISCOSITY * LOX_HEAT_CAPACITY/LOX_THERMAL_CONDUCTIVITY
     grashof_number = (1/LOX_temperature) * LUNAR_GRAVITY * LOX_DENSITY**2 * (
@@ -330,7 +329,6 @@ def outer_surface_heat_balance():
     # CALCULATION
 
     def heat_balance_in_sunlight(temperature_outer_surface_in_sunlight):
-        print(heat_transfer_coefficient)
         x = (Q_flux_solar + Q_flux_lunar_surface_sunlight + steel_wall_thermal_conductivity * support_beam_cross_section_area * (lunar_surface_temperature_in_sunlight - temperature_outer_surface_in_sunlight)/support_beam_length
              - (sigma * temperature_outer_surface_in_sunlight**4 * vip_outer_surface_area *
                 vip_emissivity + (Q_flux_solar + Q_flux_lunar_surface_sunlight) * vip_reflectivity)
@@ -360,7 +358,7 @@ def outer_surface_heat_balance():
     LOX_tank["vip"]["temperature_outer_surface_in_shadow"] = temperature_outer_surface_in_shadow
     lunar_surface["temperature_in_sunlight"] = lunar_surface_temperature_in_sunlight
     lunar_surface["temperature_in_shadow"] = lunar_surface_temperature_in_shadow
-    LOX_tank["steel_wall"]["inner_temperature"] = LOX_temperature
+    #LOX_tank["steel_wall"]["inner_temperature"] = LOX_temperature
     LOX_tank["liquid_oxygen"]["heat_transfer_coefficient"] = heat_transfer_coefficient
     LOX_tank["steel_wall"]["inner_radius"] = steel_wall_inner_radius
     LOX_tank["steel_wall"]["outer_radius"] = steel_wall_outer_radius
