@@ -16,20 +16,19 @@ Created on Mon Jun 27 12:03:26 2022
 
 # CONSTANTS
 
+
+#import modules.beneficiation_placeholder as beneficiation_placeholder
+#from modules.beneficiation_placeholder import *
+
 import csv
 import math
 import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 import scipy
 from scipy import integrate
 from scipy.optimize import curve_fit, fsolve
-
-#import modules.beneficiation_placeholder as beneficiation_placeholder
-#from modules.beneficiation_placeholder import *
-
 SOLAR_INPUT = 1361  # [W/m^2]
 sigma = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
 EMISSIVITY_LUNAR_SURFACE = 0.95  # [-]
@@ -71,7 +70,7 @@ T_inner_wall_CFI = 1173  # [K]
 energy_to_heat_regolith_batch = 0  # [kWh]
 fill_level = 0.5
 oxygen_production_rate = 274  # [kg/day] (100 t/year)
-
+batch_reaction_time_in_hours = 2.5
 
 # ilmenite_percentage = post_benef_ilmenite_grade #how much ilmenite is in the regolith
 
@@ -80,23 +79,18 @@ ilmenite_percentage_for_reactor_sizing = 0.5
 # Reactor Heat-up variables
 
 # [K] Temperature of regolith during reduction
-T_reduction_regolith_batch = 1173 # [K]
-delta_T_insulation  = 200 # [K]
-T_regolith_in = 273 # [K]
+T_reduction_regolith_batch = 1173  # [K]
+delta_T_insulation = 200  # [K]
+T_regolith_in = 273  # [K]
 
 # times:
 reactor_loading_time = 0.5  # [h]
 reactor_heat_up_time_in_hours = 5  # [h]
 reactor_heat_up_time_in_seconds = reactor_heat_up_time_in_hours*3600  # [s]
-batch_reaction_time_in_hours = 2.5  # [h]
-batch_reaction_time = batch_reaction_time_in_hours*3600  # [s]
 reactor_unloading_time = 0.5  # [h]
-total_batch_reaction_time = reactor_loading_time+reactor_heat_up_time_in_hours + \
-    batch_reaction_time_in_hours+reactor_unloading_time  # [h]
-print(total_batch_reaction_time)
 
 
-def ilmenite_to_water_conversion():
+def ilmenite_to_water_conversion(batch_reaction_time_in_hours):
 
     # Calculation of how much ilmenite is converted/reacted inside the reactor
     # The conversion % depends strongly on the reaction time
@@ -134,10 +128,11 @@ def ilmenite_to_water_conversion():
     return ilmenite_conversion_percentage
 
 
-def reactor_geometry_calculation(ilmenite_conversion_percentage):
+def reactor_geometry_calculation(ilmenite_conversion_percentage, batch_reaction_time_in_hours):
 
     # Calculation of reactor and insulation size, surface area of of reactor and mass of insulation
-
+    total_batch_reaction_time = reactor_loading_time+reactor_heat_up_time_in_hours + \
+    batch_reaction_time_in_hours+reactor_unloading_time  # [h]
     reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_conversion_percentage/100 *
                               ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3)  # factor 0.5 is because for every mol of ilmenite, 0.5 mol O2 are created
     inner_radius_CFI = reactor_chamber_radius  # [m]
@@ -173,7 +168,7 @@ def batch_mass_calculation(reactor_chamber_radius):
     return mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch
 
 
-def energy_to_heat_hydrogen_func(ilmenite_mass_batch):
+def energy_to_heat_hydrogen_func(ilmenite_mass_batch, batch_reaction_time_in_hours):
 
     # Hydrogen heat-up calculation:
 
@@ -181,7 +176,7 @@ def energy_to_heat_hydrogen_func(ilmenite_mass_batch):
     water_out_moles_batch = ilmenite_moles_batch * \
         ilmenite_conversion_percentage/100  # [mol]
     molar_mass_flow_water = water_out_moles_batch / \
-        batch_reaction_time  # [mol/s]
+        batch_reaction_time_in_hours*3600  # [mol/s]
     # [mol/s] 10 because of 10% partial pressure condition
     molar_mass_flow_hydrogen = 10*molar_mass_flow_water
     mass_flow_hydrogen = molar_mass_flow_hydrogen * \
@@ -281,7 +276,8 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
     # [K] Temperature of incoming regolith batch
     T_incoming_regolith_batch = 273
     # [K]+500 because Insulation is assumed to still be hot from last batch
-    T_inner_wall_CFI_heat_up_0 = T_incoming_regolith_batch+500 # Temperature of inner wall of insulation at t_0
+    T_inner_wall_CFI_heat_up_0 = T_incoming_regolith_batch + \
+        500  # Temperature of inner wall of insulation at t_0
     T_inner_wall_CFI_heat_up = T_incoming_regolith_batch+500
     Q_out_added_heat_up = 0
     t = 0
@@ -294,7 +290,7 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
             return x
         T_outer_surface_HTMLI_heat_up = float(
             scipy.optimize.fsolve(function2, 400))
-        
+
         # Heat flux from the inner wall of insulation to outside
         Q_flux_out_heat_up = (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi/(
             (1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)  # [W]
@@ -302,8 +298,9 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
         # The heat flux is added up for every second, which results in the total heat lost during heat up
         Q_out_added_heat_up += Q_flux_out_heat_up * 3600
         # The temperature at the inner insulation is increased by how much the reactor temperature is going up in 1 hour
-        T_inner_wall_CFI_heat_up += (T_reduction_regolith_batch-T_inner_wall_CFI_heat_up_0)/(reactor_heat_up_time_in_hours-1)
-    
+        T_inner_wall_CFI_heat_up += (T_reduction_regolith_batch -
+                                     T_inner_wall_CFI_heat_up_0)/(reactor_heat_up_time_in_hours-1)
+
         t += 1
 
     return Q_out_added_heat_up
@@ -383,11 +380,11 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch):
     return energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch
 
 
-def total_heat_lost(Q_out_added_heat_up, Q_flux_out):
+def total_heat_lost(Q_out_added_heat_up, Q_flux_out, batch_reaction_time_in_hours):
 
     Q_out_added_heat_up = Q_out_added_heat_up / \
         (3.6e6)  # [kWh] Heat lost during heat-up time
-    Q_lost_during_reaction = Q_flux_out * batch_reaction_time / \
+    Q_lost_during_reaction = Q_flux_out * batch_reaction_time_in_hours*3600 / \
         (3.6e6)  # [kWh] Heat lost during the batch reaction time
     # Total heat lost during heat-up and reaction time, multiply Q_total_lost with 3 to account for losses in mechanical supports / piping and for losses during loading and unloading regolith
     Q_total_lost = 3*(Q_out_added_heat_up + Q_lost_during_reaction)  # [kWh]
@@ -417,7 +414,7 @@ def energy_per_kg_O2(ilmenite_moles_batch, total_energy_used_by_reactor, ilmenit
     return water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2
 
 
-def power_requirements(total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction):
+def power_requirements(total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction, batch_reaction_time_in_hours):
 
     # Power requirements during heat-up phase
     power_heat_up_phase = (total_energy_to_heat_insulation+energy_to_heat_regolith_batch +
@@ -447,20 +444,104 @@ Q_total_lost_list = []
 energy_to_heat_regolith_batch_list = []
 
 
+
+def create_rego_heat_list(batch_reaction_time_in_hours):
+    for i in range(1, 99):
+
+        ilmenite_percentage = i/100  # convert from percent to ratio
+
+        # Assign the values of the calculated in the function to use them later on
+        ilmenite_conversion_percentage = ilmenite_to_water_conversion(batch_reaction_time_in_hours)
+
+        reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation(
+            ilmenite_conversion_percentage, batch_reaction_time_in_hours)
+
+        mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(
+            reactor_chamber_radius)
+
+        energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(ilmenite_mass_batch, batch_reaction_time_in_hours)
+
+        energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(
+            ilmenite_moles_batch, ilmenite_conversion_percentage)
+
+        energy_to_heat_CFI_insulation, energy_to_heat_HTMLI, total_energy_to_heat_insulation = energy_to_heat_insulation_func(
+            reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass)
+
+        view_factor_reactor_lunar_surface, view_factor_lunar_surface_reactor = view_factor_calculation(
+            surface_area_outer_HTMLI)
+
+        Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow = solar_and_lunar_heat_flux_calculation(
+            surface_area_outer_HTMLI, view_factor_lunar_surface_reactor)
+
+        T_outer_surface_HTMLI = outer_surface_heat_balance(
+            Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
+
+        Q_flux_radiation_HTMLI, Q_flux_out = radiative_and_conductive_heat_flux_calculation(
+            T_outer_surface_HTMLI, surface_area_outer_HTMLI, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI)
+
+        Q_out_added_heat_up = energy_losses_during_heat_up_calculation(
+            Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI)
+
+        energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_calculation(
+            mass_regolith_batch)
+
+        Q_out_added_heat_up, Q_lost_during_reaction, Q_total_lost = total_heat_lost(
+            Q_out_added_heat_up, Q_flux_out, batch_reaction_time_in_hours)
+
+        total_energy_used_by_reactor, total_energy_used_by_reactor_per_kg_regolith = total_energy_used_by_reactor_func(
+            total_energy_to_heat_insulation, energy_to_heat_regolith_batch, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_hydrogen, mass_regolith_batch)
+
+        water_out_moles_batch, oxygen_out_moles_batch, oxygen_out_kg_batch, total_energy_used_by_reactor_per_kg_O2 = energy_per_kg_O2(
+            ilmenite_moles_batch, total_energy_used_by_reactor, ilmenite_conversion_percentage)
+
+        power_heat_up_phase, power_reaction_phase = power_requirements(
+            total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction, batch_reaction_time_in_hours)
+
+        # print(ilmenite_percentage)
+        # print(ilmenite_conversion_percentage)
+        # print(total_energy_used_by_reactor_per_kg_regolith)
+        # append result to list
+        rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
+        ilmenite_grade_list.append(i)
+
+        energy_to_heat_hydrogen_list.append(
+            energy_to_heat_hydrogen/oxygen_out_kg_batch)
+        total_energy_to_heat_insulation_list.append(
+            total_energy_to_heat_insulation/oxygen_out_kg_batch)
+        energy_endothermic_ilmenite_H2_reaction_list.append(
+            energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch)
+        Q_total_lost_list.append(Q_total_lost/oxygen_out_kg_batch)
+        energy_to_heat_regolith_batch_list.append(
+            energy_to_heat_regolith_batch/oxygen_out_kg_batch)
+
+        # We want to compare the energy sinks in the reactor to each other at 10% ilmenite. With enrichment factor of 6,
+        # we need to get the values from ilmenite percentage = 60%
+        if i == 60:
+            energy_to_heat_hydrogen_at_10_perc_ilm = energy_to_heat_hydrogen/oxygen_out_kg_batch
+            total_energy_to_heat_insulation_at_10_perc_ilm = total_energy_to_heat_insulation / \
+                oxygen_out_kg_batch
+            energy_endothermic_ilmenite_H2_reaction_at_10_perc_ilm = energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch
+            Q_total_lost_at_10_perc_ilm = Q_total_lost/oxygen_out_kg_batch
+            energy_to_heat_regolith_batch_at_10_perc_ilm = energy_to_heat_regolith_batch / \
+                oxygen_out_kg_batch
+
+
+
+
 for i in range(1, 99):
 
     ilmenite_percentage = i/100  # convert from percent to ratio
 
     # Assign the values of the calculated in the function to use them later on
-    ilmenite_conversion_percentage = ilmenite_to_water_conversion()
+    ilmenite_conversion_percentage = ilmenite_to_water_conversion(batch_reaction_time_in_hours)
 
     reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation(
-        ilmenite_conversion_percentage)
+        ilmenite_conversion_percentage, batch_reaction_time_in_hours)
 
     mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(
         reactor_chamber_radius)
 
-    energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(ilmenite_mass_batch)
+    energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(ilmenite_mass_batch, batch_reaction_time_in_hours)
 
     energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(
         ilmenite_moles_batch, ilmenite_conversion_percentage)
@@ -487,7 +568,7 @@ for i in range(1, 99):
         mass_regolith_batch)
 
     Q_out_added_heat_up, Q_lost_during_reaction, Q_total_lost = total_heat_lost(
-        Q_out_added_heat_up, Q_flux_out)
+        Q_out_added_heat_up, Q_flux_out, batch_reaction_time_in_hours)
 
     total_energy_used_by_reactor, total_energy_used_by_reactor_per_kg_regolith = total_energy_used_by_reactor_func(
         total_energy_to_heat_insulation, energy_to_heat_regolith_batch, energy_endothermic_ilmenite_H2_reaction, Q_total_lost, energy_to_heat_hydrogen, mass_regolith_batch)
@@ -496,7 +577,7 @@ for i in range(1, 99):
         ilmenite_moles_batch, total_energy_used_by_reactor, ilmenite_conversion_percentage)
 
     power_heat_up_phase, power_reaction_phase = power_requirements(
-        total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction)
+        total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction, batch_reaction_time_in_hours)
 
     # print(ilmenite_percentage)
     # print(ilmenite_conversion_percentage)
@@ -505,29 +586,33 @@ for i in range(1, 99):
     rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
     ilmenite_grade_list.append(i)
 
-    energy_to_heat_hydrogen_list.append(energy_to_heat_hydrogen/oxygen_out_kg_batch)
-    total_energy_to_heat_insulation_list.append(total_energy_to_heat_insulation/oxygen_out_kg_batch)
-    energy_endothermic_ilmenite_H2_reaction_list.append(energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch)
+    energy_to_heat_hydrogen_list.append(
+        energy_to_heat_hydrogen/oxygen_out_kg_batch)
+    total_energy_to_heat_insulation_list.append(
+        total_energy_to_heat_insulation/oxygen_out_kg_batch)
+    energy_endothermic_ilmenite_H2_reaction_list.append(
+        energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch)
     Q_total_lost_list.append(Q_total_lost/oxygen_out_kg_batch)
-    energy_to_heat_regolith_batch_list.append(energy_to_heat_regolith_batch/oxygen_out_kg_batch)
+    energy_to_heat_regolith_batch_list.append(
+        energy_to_heat_regolith_batch/oxygen_out_kg_batch)
 
-   
-
-    #We want to compare the energy sinks in the reactor to each other at 10% ilmenite. With enrichment factor of 6, 
-    #we need to get the values from ilmenite percentage = 60%
+    # We want to compare the energy sinks in the reactor to each other at 10% ilmenite. With enrichment factor of 6,
+    # we need to get the values from ilmenite percentage = 60%
     if i == 60:
         energy_to_heat_hydrogen_at_10_perc_ilm = energy_to_heat_hydrogen/oxygen_out_kg_batch
-        total_energy_to_heat_insulation_at_10_perc_ilm = total_energy_to_heat_insulation/oxygen_out_kg_batch
+        total_energy_to_heat_insulation_at_10_perc_ilm = total_energy_to_heat_insulation / \
+            oxygen_out_kg_batch
         energy_endothermic_ilmenite_H2_reaction_at_10_perc_ilm = energy_endothermic_ilmenite_H2_reaction/oxygen_out_kg_batch
         Q_total_lost_at_10_perc_ilm = Q_total_lost/oxygen_out_kg_batch
-        energy_to_heat_regolith_batch_at_10_perc_ilm = energy_to_heat_regolith_batch/oxygen_out_kg_batch
+        energy_to_heat_regolith_batch_at_10_perc_ilm = energy_to_heat_regolith_batch / \
+            oxygen_out_kg_batch
 
 
-#print(energy_to_heat_hydrogen_list)
-#print(total_energy_to_heat_insulation_list)
-#print(energy_endothermic_ilmenite_H2_reaction_list)
-#print(Q_total_lost_list)
-#print(energy_to_heat_regolith_batch_list)
+# print(energy_to_heat_hydrogen_list)
+# print(total_energy_to_heat_insulation_list)
+# print(energy_endothermic_ilmenite_H2_reaction_list)
+# print(Q_total_lost_list)
+# print(energy_to_heat_regolith_batch_list)
 
 #cwd = os.getcwd()
 df = pandas.DataFrame(
@@ -559,8 +644,8 @@ df.to_csv(os.path.join("data", "rego_heat_list.csv"), sep=';', index=False)
 #print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
 #print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
 # print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
-#print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
-#print(ilmenite_conversion_percentage)
+# print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
+# print(ilmenite_conversion_percentage)
 
 '''p3 = ax3.bar()
 energy_sinks = ["energy to heat H2", "energy to heat insulation", "energy endothermic reaction", "heat lost over insulation", "energy to heat up regolith"]
