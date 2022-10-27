@@ -152,7 +152,7 @@ def reactor_geometry_calculation(ilmenite_conversion_percentage, batch_reaction_
     return reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass
 
 
-def batch_mass_calculation(reactor_chamber_radius):
+def batch_mass_calculation(reactor_chamber_radius, ilmenite_percentage):
 
     # Regolith and ilmenite batch mass calculation
 
@@ -304,7 +304,7 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
     return Q_out_added_heat_up
 
 
-def energy_to_heat_regolith_batch_calculation(mass_regolith_batch, T_regolith_in):
+def energy_to_heat_regolith_batch_calculation(mass_regolith_batch, T_regolith_in, ilmenite_percentage):
     # Energy to heat regolith batch
 
     # Import Cp(T) data of lunar regolith
@@ -443,6 +443,7 @@ energy_to_heat_regolith_batch_list = []
 
 
 def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thickness, delta_T_insulation, reactor_heat_up_time_in_hours, T_regolith_in, T_pre_heater):
+    rego_heat_list = []
     for i in range(1, 99):
 
         ilmenite_percentage = i/100  # convert from percent to ratio
@@ -456,7 +457,7 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
             ilmenite_conversion_percentage, batch_reaction_time_in_hours, CFI_thickness, HTMLI_thickness, reactor_heat_up_time_in_hours)
 
         mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(
-            reactor_chamber_radius)
+            reactor_chamber_radius, ilmenite_percentage)
 
         energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(
             ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater)
@@ -483,7 +484,7 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
             Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_heat_up_time_in_hours)
 
         energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_calculation(
-            mass_regolith_batch, T_regolith_in)
+            mass_regolith_batch, T_regolith_in, ilmenite_percentage)
 
         Q_out_added_heat_up, Q_lost_during_reaction, Q_total_lost = total_heat_lost(
             Q_out_added_heat_up, Q_flux_out, batch_reaction_time_in_hours)
@@ -540,7 +541,7 @@ for i in range(1, 99):
         ilmenite_conversion_percentage, batch_reaction_time_in_hours, CFI_thickness, HTMLI_thickness, reactor_heat_up_time_in_hours)
 
     mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch = batch_mass_calculation(
-        reactor_chamber_radius)
+        reactor_chamber_radius, ilmenite_percentage)
 
     energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(
         ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater)
@@ -567,7 +568,7 @@ for i in range(1, 99):
         Q_flux_lunar_surface_sunlight, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_heat_up_time_in_hours)
 
     energy_to_heat_regolith_batch_per_kg, energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_calculation(
-        mass_regolith_batch, T_regolith_in)
+        mass_regolith_batch, T_regolith_in, ilmenite_percentage)
 
     Q_out_added_heat_up, Q_lost_during_reaction, Q_total_lost = total_heat_lost(
         Q_out_added_heat_up, Q_flux_out, batch_reaction_time_in_hours)
