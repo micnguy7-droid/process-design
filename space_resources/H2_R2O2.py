@@ -36,7 +36,7 @@ pastel = sns.color_palette(palette="muted", as_cmap=True)
 
 print(energy)
 sum_energy = np.sum(energy)
-labels = np.round(energy/sum_energy*100, 3)
+labels = np.round(energy/sum_energy*100, 1)
 energy_consumers_full = ["Excavation", "Transportation", "Beneficiation",
                          "Reactor", "Electrolysis", "Liquefaction", "Storage"]
 #colors_bars = ["tab:grey", "black", "tab:red", "tab:green",  "tab:blue", "tab:orange"]
@@ -62,8 +62,10 @@ fig2, (ax3, ax4) = plt.subplots(nrows=1, ncols=2, figsize=(9, 5))
 
 # create stackplot
 #p2 = ax2.stackplot(ilmenite_grade_list, energy_list, colors = colors_stackplot, labels = legend_stackplot)
-'''
+
+
 barwidth = 12/len(ilmenite_grade_list)
+
 p2 = ax2.bar(ilmenite_grade_list,
              energy_list[0], color=colors_stackplot[0], label=legend_stackplot[0], width=barwidth)
 p3 = ax2.bar(ilmenite_grade_list, energy_list[1], bottom=energy_list[0],
@@ -75,7 +77,9 @@ p5 = ax2.bar(ilmenite_grade_list, energy_list[3], bottom=energy_list[0]+energy_l
 p6 = ax2.bar(ilmenite_grade_list, energy_list[4], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
              energy_list[3], color=colors_stackplot[4], label=legend_stackplot[4], width=barwidth)
 p7 = ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
-             energy_list[3]+energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width=barwidth)
+             energy_list[3] + energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width=barwidth)
+p8 = ax2.bar(ilmenite_grade_list, energy_list[6], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
+             energy_list[3]+energy_list[4]+energy_list[5], color=colors_stackplot[6], label=legend_stackplot[6], width=barwidth)
 
 ax2.grid(axis="y")
 #ax2.set_title("Energy requirements as a function of ilmenite %",
@@ -84,7 +88,7 @@ ax2.set_title('B', loc='left', fontsize =20)
 ax2.set_xlabel("Ilmenite %")
 ax2.set_ylabel('kWh/kg LOX')
 ax2.set_xlim((0.75, 15.25))
-ax2.legend()'''
+ax2.legend()
 
 # create bar plot
 p1 = ax1.bar(energy_consumers_full, energy, color=colors_bars)
