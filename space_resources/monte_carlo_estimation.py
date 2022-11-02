@@ -3,6 +3,8 @@ import numpy as np
 import random
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 plt.rcParams.update({'lines.markeredgewidth': 1})
 
 def monte_carlo_estimation_all_params():
@@ -73,17 +75,22 @@ def monte_carlo_estimation_all_params():
 
     ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy = energy_as_func_of_ilmenite()
 
+    #define parameters for plots
+    viridis = cm.get_cmap('viridis', 12)
+    colors_bars = ["orange", "red", "black", viridis(
+    0.2), viridis(0.45),  viridis(0.6), viridis(0.95)]
+    barwidth = 12/len(ilmenite_grade_list)
+    
     # Plot total energy w. errors
-    print(energy_slice_mu)
-    plt.errorbar(ilmenite_grade_list, y=energy_as_func_of_ilmenite_list,
-                yerr=energy_w_ilmenite_std, capsize=5)
+    plt.bar(ilmenite_grade_list, height=energy_as_func_of_ilmenite_list,
+                yerr=energy_w_ilmenite_std, capsize=5, width = barwidth)
     plt.gca().set_title('Total energy w. errors')
     plt.show()
 
 
     # Plot energy w. errors
     plt.bar(processes, height=energy, yerr=(abs(energy_slice_std+(energy -
-            energy_slice_mu)), abs(energy_slice_std-(energy-energy_slice_mu))), capsize=5)
+            energy_slice_mu)), abs(energy_slice_std-(energy-energy_slice_mu))), capsize=5, color = colors_bars)
     plt.gca().set_title('Energy w. errors')
     plt.show()
 
