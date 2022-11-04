@@ -177,7 +177,7 @@ def energy_to_heat_hydrogen_func(ilmenite_moles_batch, batch_reaction_time_in_ho
     molar_mass_flow_water = water_out_moles_batch / \
         (batch_reaction_time_in_hours*3600)  # [mol/s]
     # [mol/s] 20 because of 5% partial pressure condition
-    molar_mass_flow_hydrogen = 20*molar_mass_flow_water
+    molar_mass_flow_hydrogen = 100*molar_mass_flow_water
     mass_flow_hydrogen = molar_mass_flow_hydrogen * \
         MOLAR_MASS_H2/1000  # [kg/s] converted from g/s to kg/s
 
