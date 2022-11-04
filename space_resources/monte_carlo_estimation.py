@@ -52,7 +52,7 @@ def monte_carlo_estimation_all_params():
         delta_T_insulation = random.uniform(100, 300)
         reactor_heat_up_time_in_hours = random.uniform(3, 7)
         T_regolith_in = random.uniform(173, 373)
-        T_pre_heater = random.uniform(250, 650)
+        T_pre_heater = random.uniform(623, 823)
 
 
         # Electrolisys Parameters
@@ -130,7 +130,7 @@ def monte_carlo_estimation_individual_params():
         "delta_T_insulation":[100, 200, 300],    
         "reactor_heat_up_time_in_hours":[3, 5, 7],    
         "T_regolith_in":[173, 273, 373],    
-        "T_pre_heater":[250, 450, 650],    
+        "T_pre_heater":[623, 723, 823],    
         "enrichment_factor":[1.25, 6, 11.39],    
         "benef_ilmenite_recovery":[0.24, 0.51, 0.77]    
     }
