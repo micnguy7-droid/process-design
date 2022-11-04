@@ -345,4 +345,5 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
     energy = [X_energy_per_kg_LOX, T_energy_per_kg_LOX, B_energy_per_kg_LOX, R_energy_per_kg_LOX,
           E_energy_per_kg_LOX, L_energy_per_kg_LOX, S_energy_per_kg_LOX]
 
+
     return ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy

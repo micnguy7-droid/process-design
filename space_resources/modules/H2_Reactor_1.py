@@ -167,7 +167,7 @@ def batch_mass_calculation(reactor_chamber_radius, ilmenite_percentage):
     return mass_regolith_batch, ilmenite_mass_batch, ilmenite_moles_batch
 
 
-def energy_to_heat_hydrogen_func(ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater):
+def energy_to_heat_hydrogen_func(ilmenite_moles_batch, batch_reaction_time_in_hours, T_pre_heater, ilmenite_conversion_percentage):
 
     # Hydrogen heat-up calculation:
 
@@ -460,7 +460,7 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
             reactor_chamber_radius, ilmenite_percentage)
 
         energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(
-            ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater)
+            ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater, ilmenite_conversion_percentage)
 
         energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(
             ilmenite_moles_batch, ilmenite_conversion_percentage)
@@ -514,6 +514,7 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
         Q_total_lost_list.append(Q_total_lost/oxygen_out_kg_batch)
         energy_to_heat_regolith_batch_list.append(
             energy_to_heat_regolith_batch/oxygen_out_kg_batch)
+        
 
         # We want to compare the energy sinks in the reactor to each other at 10% ilmenite. With enrichment factor of 6,
         # we need to get the values from ilmenite percentage = 60%
@@ -528,6 +529,7 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
 
     return rego_heat_list
 
+#rego_heat_list = create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thickness, delta_T_insulation, reactor_heat_up_time_in_hours, T_regolith_in, T_pre_heater)
 
 for i in range(1, 99):
 
@@ -544,7 +546,7 @@ for i in range(1, 99):
         reactor_chamber_radius, ilmenite_percentage)
 
     energy_to_heat_hydrogen = energy_to_heat_hydrogen_func(
-        ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater)
+        ilmenite_mass_batch, batch_reaction_time_in_hours, T_pre_heater, ilmenite_conversion_percentage)
 
     energy_endothermic_ilmenite_H2_reaction = energy_endothermic_ilmenite_H2_reaction_func(
         ilmenite_moles_batch, ilmenite_conversion_percentage)
@@ -588,7 +590,6 @@ for i in range(1, 99):
     # append result to list
     rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
     ilmenite_grade_list.append(i)
-
     energy_to_heat_hydrogen_list.append(
         energy_to_heat_hydrogen/oxygen_out_kg_batch)
     total_energy_to_heat_insulation_list.append(

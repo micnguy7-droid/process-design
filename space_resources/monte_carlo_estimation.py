@@ -98,10 +98,11 @@ def monte_carlo_estimation_all_params():
     # Plot energy w. errors
     ax1.bar(processes, height=energy, yerr=(abs(energy_slice_std+(energy -
             energy_slice_mu)), abs(energy_slice_std-(energy-energy_slice_mu))), capsize=5, color = colors_bars, label = processes)
-    ax1.set_yscale('linear')
+    ax1.set_yscale('log')
     ax1.set_ylabel('kWh/kg LOX')
     ax1.set_title('A',loc='left', fontsize =20)
     ax1.grid(axis="y")
+    ax1.set_ylim(bottom=10**(-4))
     fig.subplots_adjust(wspace=0.3, hspace=0.5)
     fig.autofmt_xdate()
     plt.setp(ax2.xaxis.get_majorticklabels(), rotation=0,
