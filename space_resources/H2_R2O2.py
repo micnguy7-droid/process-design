@@ -34,7 +34,7 @@ ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy = ener
 viridis = cm.get_cmap('viridis', 12)
 pastel = sns.color_palette(palette="muted", as_cmap=True)
 
-print(energy)
+
 sum_energy = np.sum(energy)
 labels = np.round(energy/sum_energy*100, 1)
 energy_consumers_full = ["Excavation", "Transportation", "Beneficiation",
@@ -144,14 +144,15 @@ for bar in p3:
 # Plot reactor energy sinks comparison over ilmenite %
 
 # Convert lists to numpy arrays
-energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[6:96:3])
+energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[5:95:3])
 total_energy_to_heat_insulation_list = np.array(
-    total_energy_to_heat_insulation_list[6:96:3])
+    total_energy_to_heat_insulation_list[5:95:3])
 energy_endothermic_ilmenite_H2_reaction_list = np.array(
-    energy_endothermic_ilmenite_H2_reaction_list[6:96:3])
-Q_total_lost_list = np.array(Q_total_lost_list[6:96:3])
+    energy_endothermic_ilmenite_H2_reaction_list[5:95:3])
+Q_total_lost_list = np.array(Q_total_lost_list[5:95:3])
 energy_to_heat_regolith_batch_list = np.array(
-    energy_to_heat_regolith_batch_list[6:96:3])
+    energy_to_heat_regolith_batch_list[5:95:3])
+
 
 energy_list_reactor = np.sum([energy_to_heat_hydrogen_list,total_energy_to_heat_insulation_list,energy_endothermic_ilmenite_H2_reaction_list,Q_total_lost_list,energy_to_heat_regolith_batch_list],axis=0)
 
