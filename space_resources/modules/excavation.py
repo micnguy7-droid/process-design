@@ -136,4 +136,3 @@ def get_Alpha(cohCoeff=2.1, intAngle=45, extAngle=10):
 
     return Alpha
 
-Alpha = get_Alpha()
