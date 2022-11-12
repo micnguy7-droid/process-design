@@ -13,7 +13,7 @@ plt.rc('axes', axisbelow=True)
 def monte_carlo_estimation_all_params():
     processes = ["Excavation", "Transportation", "Beneficiation", "Reactor",
                 "Electrolysis", "Liquefaction", "Storage"]
-    N = 200
+    N = 20
 
     energy_w_ilmenite = []
     energy_slice = []
