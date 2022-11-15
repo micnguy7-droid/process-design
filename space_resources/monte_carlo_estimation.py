@@ -14,7 +14,7 @@ plt.rc('axes', axisbelow=True)
 def monte_carlo_estimation_all_params():
     processes = ["Excavation", "Transportation", "Beneficiation", "Reactor",
                  "Electrolysis", "Liquefaction", "Storage"]
-    N = 50
+    N = 2000
 
     energy_w_ilmenite = []
     energy_slice = []
@@ -126,24 +126,24 @@ def monte_carlo_estimation_all_params():
 
     # absolute uncertainties
     print("\n\n")
-    print("-------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("----------------------------------------------     Absolute uncertainty by module in kWh/kg LOX      --------------------------------------------")
-    print("-------------------------------------------------------------------------------------------------------------------------------------------------" "\t")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------      Absolute uncertainty by module in kWh/kg LOX      ----------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------" "\t")
 
     print(processes[0], "\t\t", processes[1], "\t", processes[2],
-          "\t\t", processes[3], "\t\t", processes[4], "\t\t", processes[5])
+          "\t\t", processes[3], "\t\t", processes[4], "\t\t", processes[5], "\t\t", processes[6])
     print(energy_slice_std[0], "\t", energy_slice_std[1], "\t", energy_slice_std[2], "\t",
-          energy_slice_std[3], "\t", energy_slice_std[4], "\t", energy_slice_std[5], "\n")
-    print("\n")
+          energy_slice_std[3], "\t", energy_slice_std[4], "\t", energy_slice_std[5], "\t", energy_slice_std[6])
+    print("\n\n")
 
-    print("-------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("----------------------------------------------        Relative uncertainty by module in %            --------------------------------------------")
-    print("-------------------------------------------------------------------------------------------------------------------------------------------------" "\t")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------        Relative uncertainty by module in %            -----------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------" "\t")
 
     print(processes[0], "\t\t", processes[1], "\t", processes[2],
-          "\t\t", processes[3], "\t\t", processes[4], "\t\t", processes[5])
+          "\t\t", processes[3], "\t\t", processes[4], "\t\t", processes[5], "\t\t", processes[6])
     print(energy_slice_std[0]/energy[0]*100, "\t", energy_slice_std[1]/energy[1]*100, "\t", energy_slice_std[2]/energy[2]*100,
-          "\t", energy_slice_std[3]/energy[3]*100, "\t", energy_slice_std[4]/energy[4]*100, "\t", energy_slice_std[5]/energy[5]*100)
+          "\t", energy_slice_std[3]/energy[3]*100, "\t", energy_slice_std[4]/energy[4]*100, "\t", energy_slice_std[5]/energy[5]*100, "\t", energy_slice_std[6]/energy[6]*100)
     print("\n\n")
 
     # define parameters for plots
