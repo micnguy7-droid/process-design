@@ -38,7 +38,7 @@ pastel = sns.color_palette(palette="muted", as_cmap=True)
 sum_energy = np.sum(energy)
 labels = np.round(energy/sum_energy*100, 2)
 energy_consumers_full = ["Excavation", "Transportation", "Beneficiation",
-                         "Reactor", "Electrolysis", "Liquefaction", "Storage"]
+                         "Hydrogen Reduction", "Electrolysis", "Liquefaction", "Storage"]
 #colors_bars = ["tab:grey", "grey", "tab:red", "tab:green",  "tab:blue", "tab:orange"]
 colors_bars = ["orange", "red", "grey", viridis(
     0.2), viridis(0.45),  viridis(0.6), viridis(0.95)]
