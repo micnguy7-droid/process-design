@@ -10,7 +10,9 @@ from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 plt.rcParams.update({'lines.markeredgewidth': 1})
 plt.rc('axes', axisbelow=True)
 
-
+''' Function: monte_carlo_estimation_all_params()
+    runs a monte carlo estimation to find the uncertainty in the energy requird when changin certain input parameters
+'''
 def monte_carlo_estimation_all_params():
     processes = ["Excavation", "Transportation", "Beneficiation", "Reactor",
                  "Electrolysis", "Liquefaction", "Storage"]
@@ -22,8 +24,7 @@ def monte_carlo_estimation_all_params():
     for n in range(0, N):
 
         # Liquefaction parameters
-        cryocooler_efficiency = random.uniform(
-            0.05, 0.4)  # Think about upper limit
+        cryocooler_efficiency = random.uniform(0.05, 0.4)  # Think about upper limit
         T_hot_reservoir_carnot_cycle = random.uniform(183, 283)
         T_of_incoming_oxygen = random.uniform(330, 350)
 
@@ -57,12 +58,10 @@ def monte_carlo_estimation_all_params():
 
         # Electrolisys Parameters
         system_efficiency = random.uniform(0.5, 0.7)
-        '''
-        
-        Default values to be used for testing
         
         
-        '''
+        '========================Default values to be used for testing========================'
+        
 
         '''
         # Liquefaction parameters
