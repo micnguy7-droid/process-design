@@ -19,7 +19,7 @@ List of collaborators:
     Fardin Ghaffari
     Dorian Leger
     Anton Morlock
-    Freya Thorensen
+    Freja Thoresen
     Baptiste Valentin
     David Dickson
     Joshua Rasera
