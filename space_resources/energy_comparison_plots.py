@@ -62,7 +62,7 @@ for bar in p1:
 
 '=============================Color palette and lists for stacked bar plot (total energy)============================='
 legend_stackplot = ["Storage",  "Liquefaction",
-                    "Electrolysis", "Transportation", "Excavation", "Beneficiation", "Reactor"]
+                    "Electrolysis", "Transportation", "Excavation", "Beneficiation", "Hydrogen Reduction"]
 colors_stackplot = [viridis(0.95),  viridis(
     0.6), viridis(0.45), "red", "orange", "grey", viridis(0.2)]
 
