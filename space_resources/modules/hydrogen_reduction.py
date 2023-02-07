@@ -152,15 +152,17 @@ def energy_to_heat_hydrogen_func(ilmenite_moles_batch, batch_reaction_time_in_ho
 
     # Hydrogen heat-up calculation:
 
-    # Needed hydrogen mass flow calculation with 5% partial pressure condition
+    # Needed hydrogen mass flow calculation with 1% partial pressure condition
     water_out_moles_batch = ilmenite_moles_batch * \
         ilmenite_conversion_percentage/100  # [mol]
     molar_mass_flow_water = water_out_moles_batch / \
         (batch_reaction_time_in_hours*3600)  # [mol/s]
-    # [mol/s] 20 because of 5% partial pressure condition
+    # [mol/s] 100 because of 1% partial pressure condition
     molar_mass_flow_hydrogen = 100*molar_mass_flow_water
     mass_flow_hydrogen = molar_mass_flow_hydrogen * \
         MOLAR_MASS_H2/1000  # [kg/s] converted from g/s to kg/s
+    #print('mass_flow_hydrogen [g/s] =', mass_flow_hydrogen*1000)
+    #print('molar_mass_flow_water [mol/s] =', molar_mass_flow_water)
 
     # New hydrogen heat-up calculation:
     #print("mass_flow_hydrogen =",mass_flow_hydrogen)
@@ -354,6 +356,7 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch, T_regolith_in
 
     # divide by 3.6e6 to get energy in kWh
     energy_to_heat_regolith_batch_per_kg = float(I[0])/(3.6e6)  # kWh
+    #print('energy_to_heat_regolith_batch_per_kg =', energy_to_heat_regolith_batch_per_kg)
     # multiply by mass of regolith batch to get total energy to heat regolith batch
     energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_per_kg * \
         mass_regolith_batch  # kWh
