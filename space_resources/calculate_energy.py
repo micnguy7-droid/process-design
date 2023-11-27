@@ -170,14 +170,16 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
     
     S_out_dioxy_kg_list = []
 
-    for i in range(2, max_pre_benef_ilmenite_grade*2):
+    ilmenite_wt = np.linspace(0.01, 0.16, 30+1)
+
+    for i, pre_benef_ilmenite_grade_loop in enumerate(ilmenite_wt):
 
         'Calculations'
         '=================================================='
 
         # increasing pre beneficiation ilmenite percentage
 
-        pre_benef_ilmenite_grade_loop = i/200  # convert from percent to ratio, one loop means 0.5% increase 
+        #pre_benef_ilmenite_grade_loop = i/200  # convert from percent to ratio, one loop means 0.5% increase 
 
         # (3) Mass flow
         X_in_regolith = 1   # kg-regolith
@@ -192,7 +194,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.1, system_efficiency=0.
         B_out_regolith = B_out_ilmenite + B_out_gangue
         R_in_regolith = B_out_regolith
 
-        post_benef_ilmenite_grade = round(i/2*benef1.enrichment_factor)
+        post_benef_ilmenite_grade = round(pre_benef_ilmenite_grade_loop*100*benef1.enrichment_factor)
 
         #prevent the post benef ilmenite grade to rise above a feasible threshhold
         if(post_benef_ilmenite_grade >= 99):

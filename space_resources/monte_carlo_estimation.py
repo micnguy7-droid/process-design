@@ -27,7 +27,7 @@ def monte_carlo_estimation_all_params():
     processes = ["Excavation", "Transportation", "Beneficiation", "Reactor",
                  "Electrolysis", "Liquefaction", "Storage"]
                   
-    N = 2000
+    N = 100
 
     energy_w_ilmenite = []
     energy_slice = []
@@ -180,8 +180,6 @@ def monte_carlo_estimation_all_params():
     ax2.set_xlabel("Ilmenite wt%")
     ax2.set_title('B', loc='left', fontsize=20)
 
-
-
     # Plot energy split at 10% ilmenite w. errors
     ax1.bar(processes, height=energy, yerr=(abs(energy_slice_std+(energy -
             energy_slice_mu)), abs(energy_slice_std-(energy-energy_slice_mu))), capsize=5, color=colors_bars, label=processes)
@@ -202,12 +200,10 @@ def monte_carlo_estimation_all_params():
     for process, _ax, name in zip(energy_slice.T, axs.ravel(), processes):
         sns.histplot(process, ax=_ax)
         _ax.set_title(name)
-    plt.show()'''
+    #plt.show()'''
 
 
-
-
-def monte_carlo_estimation_individual_params():
+def monte_carlo_estimation_reactor():
     ''' runs a monte carlo estimation for parameters in the reactor module specifically, 
     as the reactor module exhibits the highest uncertainty out of all the considered modules.
     individual parameters are varied one by one to evaluate the impact of different parameters on the model'''
@@ -275,20 +271,20 @@ def monte_carlo_estimation_individual_params():
         for process, _ax, name in zip(energy_slice.T, axs.ravel(), processes):
             sns.histplot(process, ax=_ax)
             _ax.set_title(name)
-        plt.show()
+        #plt.show()
         '''
     plt.figure(figsize=(8, 6))
 
     # plot list of total errors for different varied variables
-    plt.scatter(ilmenite_grade_list, result_dict["batch_reaction_time_in_hours"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "batch_reaction_time_in_hours")
-    plt.scatter(ilmenite_grade_list, result_dict["CFI_thickness"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "CFI_thickness")
-    plt.scatter(ilmenite_grade_list, result_dict["HTMLI_thickness"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "HTMLI_thickness")
-    plt.scatter(ilmenite_grade_list, result_dict["delta_T_insulation"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "delta_T_insulation")
-    plt.scatter(ilmenite_grade_list, result_dict["reactor_heat_up_time_in_hours"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "reactor_heat_up_time_in_hours")
-    plt.scatter(ilmenite_grade_list, result_dict["T_regolith_in"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "T_regolith_in")
-    plt.scatter(ilmenite_grade_list, result_dict["T_pre_heater"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "T_pre_heater")
-    plt.scatter(ilmenite_grade_list, result_dict["enrichment_factor"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "enrichment_factor")
-    plt.scatter(ilmenite_grade_list, result_dict["benef_ilmenite_recovery"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "benef_ilmenite_recovery")
+    plt.scatter(ilmenite_grade_list, result_dict["batch_reaction_time_in_hours"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "Batch reaction time [hours]")
+    plt.scatter(ilmenite_grade_list, result_dict["CFI_thickness"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "CFI thickness")
+    plt.scatter(ilmenite_grade_list, result_dict["HTMLI_thickness"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "HTMLI thickness")
+    plt.scatter(ilmenite_grade_list, result_dict["delta_T_insulation"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = r"$\Delta_T$ insulation")
+    plt.scatter(ilmenite_grade_list, result_dict["reactor_heat_up_time_in_hours"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "Reactor heat-up time [hours]")
+    plt.scatter(ilmenite_grade_list, result_dict["T_regolith_in"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = r"$T_{regolith_{in}}$")
+    plt.scatter(ilmenite_grade_list, result_dict["T_pre_heater"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = r"$T_{pre-heater}$")
+    plt.scatter(ilmenite_grade_list, result_dict["enrichment_factor"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "Enrichment factor")
+    plt.scatter(ilmenite_grade_list, result_dict["benef_ilmenite_recovery"][1]/energy_as_func_of_ilmenite_list, marker = 'x', label = "Beneficiation ilmenite recovery")
     '''
     # plot 10% ilmenite slice
     plt.scatter(10, 100*result_dict["batch_reaction_time_in_hours"][0]
@@ -310,6 +306,7 @@ def monte_carlo_estimation_individual_params():
     plt.scatter(10, 100*result_dict["benef_ilmenite_recovery"][0]
                 [3]/energy[3], marker='x', label="benef_ilmenite_recovery")
     '''
+
     #plt.gca().set_title('Influence of individual varied parameters')
     plt.xlabel("ilmenite %")
     plt.ylabel("Relative uncertainty caused by each parameter")
@@ -319,5 +316,5 @@ def monte_carlo_estimation_individual_params():
     plt.show()
 
 
-#monte_carlo_estimation_all_params()
-monte_carlo_estimation_individual_params()
+monte_carlo_estimation_all_params()
+monte_carlo_estimation_reactor()
