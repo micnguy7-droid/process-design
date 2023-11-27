@@ -140,12 +140,12 @@ for bar in p3:
 '=============================Color palette and lists for stacked bar plot (total energy)============================='
 #slicing energy arrays to be identical to the total energy plots
 #energy lists taken directly from the reactor module
-energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[5:95:3])
-total_energy_to_heat_insulation_list = np.array(total_energy_to_heat_insulation_list[5:95:3])
-energy_endothermic_ilmenite_H2_reaction_list = np.array(energy_endothermic_ilmenite_H2_reaction_list[5:95:3])
-Q_total_lost_list = np.array(Q_total_lost_list[5:95:3])
+energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[5:98:3])
+total_energy_to_heat_insulation_list = np.array(total_energy_to_heat_insulation_list[5:98:3])
+energy_endothermic_ilmenite_H2_reaction_list = np.array(energy_endothermic_ilmenite_H2_reaction_list[5:98:3])
+Q_total_lost_list = np.array(Q_total_lost_list[5:98:3])
 Insulation_heat_lost_list = total_energy_to_heat_insulation_list + Q_total_lost_list
-energy_to_heat_regolith_batch_list = np.array(energy_to_heat_regolith_batch_list[5:95:3])
+energy_to_heat_regolith_batch_list = np.array(energy_to_heat_regolith_batch_list[5:98:3])
 energy_list_reactor = np.sum([energy_to_heat_hydrogen_list,total_energy_to_heat_insulation_list,energy_endothermic_ilmenite_H2_reaction_list,Q_total_lost_list,energy_to_heat_regolith_batch_list],axis=0)
 
 
