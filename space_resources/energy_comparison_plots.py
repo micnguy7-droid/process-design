@@ -29,9 +29,28 @@ ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy, total
 '=================================Color palette and lists for bar plot (total energy)================================='
 energy_consumers_full = ["Excavation", "Transportation", "Beneficiation",
                          "Hydrogen Reduction", "Electrolysis", "Liquefaction", "Storage"]
-
+energy_consumers_full = ["Storage",  "Liquefaction",
+                    "Electrolysis", "Transportation", "Excavation", "Beneficiation", "Hydrogen Reduction"]
 colors_bars = ["orange", "red", "grey", viridis(
     0.2), viridis(0.45),  viridis(0.6), viridis(0.95)]
+
+### debug code, remove when fixed.
+np.set_printoptions(suppress=True)
+
+print('_________ check here if the energy values are correct _________')
+print('energy: ', np.around(energy,8))
+print('should be the same as')
+
+wt_10_index = np.argwhere(ilmenite_grade_list==10)[0][0]
+energy_2 = np.array(energy_list)[:,wt_10_index]
+print('energy_list[:,wt_10_index]: ', energy_2)
+print('... when reordered')
+
+print('_________ also check here that the transportion and beneficiation energies are correct _________')
+print('transportation energy: ', np.around(np.array(energy_list)[3, wt_10_index],8))
+print('beneficiation energy: ', np.around(np.array(energy_list)[5, wt_10_index],8))
+
+### debug code, remove when fixed.
 
 sum_energy = np.sum(energy)
 labels = np.zeros(len(energy))
