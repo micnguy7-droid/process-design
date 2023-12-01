@@ -59,12 +59,13 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
     E_energy = E_in_water_mols * water_elec
     L_energy = L_in_dioxy_mols * dioxy_liq
     S_energy = S_out_dioxy_kg * storage_cooling
-    Total_energy = (X_energy + T_energy + R_energy +
-                    E_energy + L_energy + S_energy)/S_out_dioxy_kg
+    total_energy = (X_energy + T_energy + R_energy +
+                    E_energy + L_energy + S_energy)
     energy = np.array([X_energy, T_energy, B_energy, R_energy, E_energy, L_energy, S_energy])
     energy_per_kg_O2 = energy/S_out_dioxy_kg
+    total_energy_per_kg_O2 = total_energy/S_out_dioxy_kg
     
-    return energy_per_kg_O2, Total_energy/S_out_dioxy_kg
+    return energy_per_kg_O2, total_energy_per_kg_O2
 
 
 def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.6, enrichment_factor = 6, benef_ilmenite_recovery= 0.51, motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, T_of_incoming_oxygen=340, vip_thickness=0.025, vip_thermal_conductivity=0.006, vip_emissivity=0.05,cryocooler_efficiency_storage=0.1,batch_reaction_time_in_hours=2.5, CFI_thickness=0.06, HTMLI_thickness=0.06, delta_T_insulation=200, reactor_heat_up_time_in_hours=5, T_regolith_in=273, T_pre_heater=723, cohCoeff=2100, intAngle=45, extAngle=10):

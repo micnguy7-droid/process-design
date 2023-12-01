@@ -116,7 +116,7 @@ def monte_carlo_estimation_individual(N=10):
 
     ilmenite_grade_list, result_dict = simulate_events(range_dict, N=N)
 
-    with open('monte_carlo_individual.pkl', 'wb') as f:
+    with open('data/monte_carlo_individual.pkl', 'wb') as f:
         pickle.dump(result_dict, f)
     return
 
@@ -126,7 +126,7 @@ def monte_carlo_estimation_all_params(N=10):
     ilmenite_grade_list, result_dict = simulate_events_simultaneous(
         range_dict, N=N)
 
-    with open('monte_carlo_all_params.pkl', 'wb') as f:
+    with open('data/monte_carlo_all_params.pkl', 'wb') as f:
         pickle.dump(result_dict, f)
     return
 
