@@ -12,7 +12,6 @@ from modules.hydrogen_reduction import *
 from calculate_energy import energy_as_func_of_ilmenite
 
 
-
 '========================================figure creation and global parameters========================================'
 forloops = False
 plt.rc('axes', axisbelow=True)
@@ -61,30 +60,22 @@ for bar in p1:
 
 
 '=============================Color palette and lists for stacked bar plot (total energy)============================='
-legend_stackplot = ["Storage",  "Liquefaction",
-                    "Electrolysis", "Transportation", "Excavation", "Beneficiation", "Hydrogen Reduction"]
-legend_stackplot = energy_consumers_full
-colors_stackplot = [viridis(0.95),  viridis(
-    0.6), viridis(0.45), "red", "orange", "grey", viridis(0.2)]
+legend_stackplot = energy_consumers_full #["Excavation", "Transportation", "Beneficiation", "Hydrogen Reduction", "Electrolysis", "Liquefaction", "Storage"]
+colors_stackplot = [viridis(0.2), "grey", "orange", "red", viridis(0.6), viridis(0.45), viridis(0.95)]
 
+energy_rearranged = np.array([energy_list[6], energy_list[5], energy_list[4], energy_list[1], energy_list[0], energy_list[2], energy_list[3]])
+legend_rearranged = np.array([legend_stackplot[6], legend_stackplot[5], legend_stackplot[4], legend_stackplot[1], legend_stackplot[0], legend_stackplot[2], legend_stackplot[3]])
+color_rearranged = np.flip(np.array([viridis(0.2), "grey", "orange", "red", viridis(0.45), viridis(0.6), viridis(0.95)]))
 
 '===========================================stacked bar plot (total energy)==========================================='
 barwidth = 12/len(ilmenite_grade_list)
 
-p2 = ax2.bar(ilmenite_grade_list,
-             energy_list[0], color=colors_stackplot[0], label=legend_stackplot[0], width=barwidth)
-p3 = ax2.bar(ilmenite_grade_list, energy_list[1], bottom=energy_list[0],
-             color=colors_stackplot[1], label=legend_stackplot[1], width=barwidth)
-p4 = ax2.bar(ilmenite_grade_list, energy_list[2], bottom=energy_list[0]+energy_list[1],
-             color=colors_stackplot[2], label=legend_stackplot[2], width=barwidth)
-p5 = ax2.bar(ilmenite_grade_list, energy_list[3], bottom=energy_list[0]+energy_list[1] +
-             energy_list[2], color=colors_stackplot[3], label=legend_stackplot[3], width=barwidth)
-p6 = ax2.bar(ilmenite_grade_list, energy_list[4], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
-             energy_list[3], color=colors_stackplot[4], label=legend_stackplot[4], width=barwidth)
-p7 = ax2.bar(ilmenite_grade_list, energy_list[5], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
-             energy_list[3] + energy_list[4], color=colors_stackplot[5], label=legend_stackplot[5], width=barwidth)
-p8 = ax2.bar(ilmenite_grade_list, energy_list[6], bottom=energy_list[0]+energy_list[1]+energy_list[2] +
-             energy_list[3]+energy_list[4]+energy_list[5], color=colors_stackplot[6], label=legend_stackplot[6], width=barwidth)
+prev_energy = np.zeros(len(ilmenite_grade_list))
+bars = []
+for energy, legend, c in zip(energy_rearranged, legend_rearranged, color_rearranged):
+    bars.append(ax2.bar(ilmenite_grade_list, energy, bottom=prev_energy, color=c, label=legend, width=barwidth))
+    prev_energy = prev_energy + energy
+
 
 
 '====================================plot options stacked bar plot (total energy)====================================='
