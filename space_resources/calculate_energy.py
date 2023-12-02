@@ -6,8 +6,9 @@ author: Fardin Ghaffari, Anton Morlock, Dorian Leger
 
 Version 1.0
 
-DL test commi
+DL test commit Dec 2nd 2023
 """
+
 
 from modules.beneficiation import *
 from modules.electrolysis import electrolysis_energy_per_mol_H2O
@@ -153,3 +154,4 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
     energy_list_per_kg_LOX = [X_energy_list, T_energy_list, B_energy_list, R_energy_list, E_energy_list, L_energy_list, S_energy_list]
 
     return ilmenite_grade_list, energy_list_per_kg_LOX, energy_as_func_of_ilmenite_list, energy_slice, total_energy_as_func_of_ilmenite_list, S_out_dioxy_kg_list
+
