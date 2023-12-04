@@ -11,7 +11,7 @@ monte_carlo_estimation.py conducts a monte carlo estimation with select varied p
 
 The folder space_resources/additional_resources contains additional modules and files which are not currently used in the main project structure but might be of use when expanding or altering the project.
 
-To use the project, there are two three crucial files: energy_comparison_plots.py and monte_carlo_estimation.py which can be individually run to produce the desired output graphs. In the monte_carlo_estimation.py one also needs to adjust which function should be executed at the end of the file.
+To use the project, there are two crucial files: energy_comparison_plots.py and monte_carlo_estimation.py which can be individually run to produce the desired output graphs. In the monte_carlo_estimation.py one also needs to adjust which function should be executed at the end of the file.
 
 
 
