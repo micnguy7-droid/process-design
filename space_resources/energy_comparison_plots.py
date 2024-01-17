@@ -85,7 +85,7 @@ handles, labels = ax2.get_legend_handles_labels()
 order = [6,5,4,3,2,1,0]
 ax2.grid(axis="y")
 ax2.set_title('A', loc='left', fontsize =20)
-ax2.set_xlabel("Ilmenite head grade [wt%]")
+ax2.set_xlabel("Ilmenite concentration [wt%]")
 ax2.set_ylabel('kWh/kg LOX')
 ax2.set_xticks([1,3,5,7,9,11,13,15])
 ax2.set_xlim((0.75, 15.25))
@@ -162,7 +162,7 @@ order = [3,2,1,0]
 
 ax4.legend([handles[idx] for idx in order],[labels[idx] for idx in order])
 ax4.grid(axis="y")
-ax4.set_xlabel("Ilmenite head grade [wt%]")
+ax4.set_xlabel("Ilmenite concentration [wt%]")
 ax4.set_ylabel('kWh/kg LOX')
 ax4.set_xticks([1,3,5,7,9,11,13,15])
 ax4.set_xlim((0.75, 15.25))
