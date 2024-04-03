@@ -51,6 +51,7 @@ def excavationMechanics(depth_m, trench_depth_m, radius_m, ext_angle, int_angle,
 
     C = coh_coeff  # Cohesion coefficient (Pa)
 
+    #print("in X mecha", C)
     reg_vars = [phi, delta, gamma, C]
 
     reg_vars2 = g    # Lunar gravity, m/s^2
@@ -92,31 +93,18 @@ def excavationMechanics(depth_m, trench_depth_m, radius_m, ext_angle, int_angle,
 def Balovnev(reg_vars, reg_vars2, exc_vars, exc_vars2):
 
     f = reg_vars[0]
-
     d = reg_vars[1]
-
     gam = reg_vars[2]
-
     c = reg_vars[3]
-
     g = reg_vars2
-
     R = exc_vars[0]
-
     r = exc_vars[1]
-
     depth = exc_vars[2]
-
     w = exc_vars2[0]
-
     ab = exc_vars2[1]
-
     b = exc_vars2[2]
-
     s = exc_vars2[3]
-
     eb = exc_vars2[4]
-
     r_scoop = 3.125/5.3125*R        # Length of side
 
     #bucket_excavation_arc = ma.acos((R - depth)/R)
@@ -196,30 +184,21 @@ def Balovnev(reg_vars, reg_vars2, exc_vars, exc_vars2):
 
 
 def A(x, f):
-
     ans = ((1 - ma.sin(f)*ma.cos(2*x))/(1 - ma.sin(f)))
-
     return ans
 
 
 def A_prime(x, f, d):
-
     ans = ((ma.cos(d)*(ma.cos(d) + ((ma.sin(f))**2 - (ma.sin(d))**2)**0.5)/(1 - ma.sin(f))) *
-
            ma.exp((2*x - ma.pi + d + ma.asin(ma.sin(d)/ma.sin(f)))*ma.tan(f)))
-
     return ans
 
 
 digOutputs = excavationMechanics(
-
     depthM, trenchDepthM, radiusM, extAngle, intAngle, cohCoeff, gVal, mRegolith)
-
 AlphaExc = 2.77778e-7*digOutputs[1]  # kWh/kg
 
-
 # Part added by Baptiste for adding the "transportation energy requirement while excavating"
-
 
 # [m/s] TO CROSSCHECK (the velocity during excavation)
 velocityExcavation = 0.01
@@ -264,6 +243,7 @@ Alpha = AlphaExc + AlphaTpt  # [kWh/kg]
 
 def get_Alpha(cohCoeff_input, intAngle_input, extAngle_input, motor_efficiency_input, mRover_input):
 
+    #print("in X alpha", cohCoeff_input) # for testing
     #empty rover
     mRegolith = 0  # [kg]
     MinSlipEmpty = slip_required(mRover_input + mRegolith, gVal, WheelWidthVal, WheelRadiusVal, SlopeVal, wheelbaseVal,

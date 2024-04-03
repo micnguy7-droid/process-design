@@ -369,7 +369,7 @@ rhoVal = 1600  # Density (kg/m3), 1600 is taken as reference.
 
 nVal = 1  # Exponent
 
-kcVal = 1100  # Coheslion modulus (N/m^n+1) '#1400
+kcVal = 1100  # Cohesion modulus (N/m^n+1) '#1400
 
 kphiVal = 820000  # Friction modulus (N/m^n+2)
 

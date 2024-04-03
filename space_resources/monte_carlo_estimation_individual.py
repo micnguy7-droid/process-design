@@ -25,7 +25,7 @@ def get_range_dict():
         "cryocooler_efficiency":   [0.15, 0.2, 0.25],
         "T_hot_reservoir_carnot_cycle":   [183, 233, 283],
         "T_of_incoming_oxygen": [330, 340, 350],
-        "enrichment_factor":   [1.25, 6.32, 11.39],
+        "enrichment_factor":   [1.5, 6, 10.5],
         "benef_ilmenite_recovery":   [0.24, 0.505, 0.77],
         "motor_efficiency":   [0.4, 0.6, 0.8],
         "mRover":   [47, 67, 87],
