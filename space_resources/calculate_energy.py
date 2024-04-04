@@ -75,9 +75,10 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
     
 
     #for testing in April 2024 - DL
-    if pre_benef_ilmenite_grade==0.10:
+    if pre_benef_ilmenite_grade==pre_benef_ilmenite_grade:
         #print(water_elec)
-        print("pre_ilm% :", pre_benef_ilmenite_grade*100, "post_ilm% :", post_benef_ilmenite_grade,"energy: ", round(total_energy_per_kg_O2,4),"\n")
+        print("pre_ilm% :", pre_benef_ilmenite_grade*100, "post_ilm% :", post_benef_ilmenite_grade,"energy: ", round(total_energy_per_kg_O2,4), "kWh/kg LOX","\n")
+        '''
         print("X", X_energy*1000)
         print("T",T_energy*1000)
         print("B",B_energy*1000)
@@ -85,6 +86,7 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
         print("E",E_energy*1000)
         print("L",L_energy*1000)
         print("S",S_energy*1000)
+        '''
     ##end test##
 
 
@@ -153,7 +155,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
     S_out_dioxy_kg_list = []
 
     #ilmenite_wt = np.linspace(enrichment_factor*2,199-199%enrichment_factor,199//enrichment_factor-1)/(enrichment_factor*200)
-    ilmenite_wt = np.linspace(0.01, 0.16, 32)
+    ilmenite_wt = np.linspace(0.01, 0.16, 31)
 
     for i, pre_benef_ilmenite_grade_loop in enumerate(ilmenite_wt):
 
@@ -194,6 +196,6 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
     return ilmenite_grade_list, energy_list_per_kg_LOX, energy_as_func_of_ilmenite_list, energy_slice, total_energy_as_func_of_ilmenite_list, S_out_dioxy_kg_list
 
 #
-test=True
+test=False
 if test==True:
     energy_as_func_of_ilmenite()

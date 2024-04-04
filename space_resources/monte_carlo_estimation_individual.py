@@ -131,6 +131,6 @@ def monte_carlo_estimation_all_params(N=10):
     return
 
 
-N = 1000
-monte_carlo_estimation_individual(N=N)
+N = 5
+#monte_carlo_estimation_individual(N=N)
 monte_carlo_estimation_all_params(N=N)
