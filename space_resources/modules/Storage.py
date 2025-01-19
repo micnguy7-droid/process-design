@@ -4,6 +4,60 @@ Created on Mon Jul 25 08:59:02 2022
 
 @author: Fardin Ghaffari, Anton Morlock
 """
+
+"""
+README
+
+This Python script calculates various thermal properties, heat transfer coefficients, 
+and heat fluxes for a liquid oxygen (LOX) tank operating in a lunar environment. It 
+is designed to model thermal behavior under conditions such as sunlight exposure and 
+shadow, simulating radiative, conductive, and convective heat transfers. 
+
+Key features:
+1. **Material Properties and Initialization**:
+   The code includes parameters for the LOX tank, lunar surface, and vacuum insulation 
+   panel (VIP) to initialize necessary variables.
+
+2. **Heat Transfer Coefficients**:
+   The script computes the heat transfer coefficient between the LOX and the inner tank 
+   wall using fluid dynamics equations, including Prandtl, Grashof, and Nusselt numbers.
+
+3. **Radiative View Factors**:
+   The script determines the radiative view factors for heat transfer between the tank 
+   and the lunar surface, accounting for both sunlight and shadow conditions.
+
+4. **Solar and Lunar Heat Flux**:
+   Heat flux contributions from the sun and the lunar surface are calculated, using 
+   relevant emissivity, reflectivity, and temperature data.
+
+5. **Heat Balance Calculations**:
+   Heat balances are performed to calculate the outer surface temperature of the tank in 
+   sunlight and shadow using numerical solvers (`scipy.optimize.fsolve`).
+
+6. **Heat Flux into the Tank**:
+   The final heat flux into the LOX tank, considering conductive and radiative contributions, 
+   is computed to estimate thermal losses.
+
+Modules and Libraries:
+- The script uses `math` for mathematical operations and `scipy.optimize` for solving 
+  heat balance equations.
+- Dictionaries store and update physical and material properties dynamically.
+
+Customization:
+- Thermal properties such as VIP thermal conductivity, VIP emissivity, and reflectivity 
+  can be adjusted via function parameters.
+
+Usage Notes:
+1. Update material properties and dimensions in the initialization section as required 
+   for specific scenarios.
+2. Ensure `scipy` is installed to use the numerical solver.
+
+
+Application:
+This script can be used to assess the thermal performance of cryogenic storage systems in 
+lunar environments and assist in designing thermal insulation strategies for space missions.
+"""
+
 import csv
 import math
 

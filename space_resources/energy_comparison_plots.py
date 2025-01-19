@@ -1,10 +1,28 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Jun 18 14:08:24 2022
-author: Anton Morlock, Fardin Ghaffari
+Authors: Anton Morlock, Fardin Ghaffari
 
-Version 1.0
+README
+
+This script generates and saves energy comparison figures for hydrogen reduction processes
+in relation to ilmenite grades and their effects on total energy and oxygen output.
+It consists of multiple energy bar plots and stacked bar plots to visualize energy breakdowns 
+at different stages of processing.
+
+Usage:
+    To run the code, ensure all dependencies are met:
+        - 'matplotlib' for plotting the results
+        - 'seaborn' for color palettes
+        - 'calculate_energy' and 'hydrogen_reduction' for energy calculations.
+
+
+Output:
+    - A set of energy comparison plots saved as 'Result_figure_energy_comparison.png' 
+      and 'Result_figure_reactor_energies.png'.
+
 """
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import cm
@@ -12,7 +30,6 @@ from modules.hydrogen_reduction import *
 from calculate_energy import energy_as_func_of_ilmenite
 
 
-#Play around with the enrichment factor here:
 enrichment_factor = 6
 
 '========================================figure creation and global parameters========================================'
