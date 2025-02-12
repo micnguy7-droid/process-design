@@ -102,12 +102,15 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
 
 
 
+
 def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.6, enrichment_factor = 6, 
                                benef_ilmenite_recovery= 0.505, motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, 
                                T_of_incoming_oxygen=340, vip_thickness=0.025, vip_thermal_conductivity=0.006, vip_emissivity=0.055,
                                cryocooler_efficiency_storage=0.2,batch_reaction_time_in_hours=2.5, CFI_thickness=0.06, 
                                HTMLI_thickness=0.06, delta_T_insulation=200, reactor_heat_up_time_in_hours=5, T_regolith_in=273, 
                                T_pre_heater=723, cohCoeff=1100, intAngle=45, extAngle=12.5):
+
+=======
 
     """calculates the energy requirements of oxygen production given the process parameters"""
    
