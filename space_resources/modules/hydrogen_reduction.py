@@ -3,7 +3,22 @@
 """
 Created on Mon Jun 27 12:03:26 2022
 
-@author: Fardin Ghaffari, Anton Morlock
+Authors: Fardin Ghaffari, Anton Morlock
+
+
+README
+
+Purpose
+
+This module estimates the energy consumption and oxygen production in a lunar regolith-based hydrogen reduction process within a reactor. 
+The code focuses on heating regolith, reactor insulation, and hydrogen, as well as calculating energy losses, heating power, and the energy required for oxygen production from ilmenite. 
+The results are calculated based on various reactor and process parameters.
+
+Outputs
+
+- Lists storing calculated values for energy usage, including total energy required, energy lost, and energy per kg oxygen.
+- A CSV file (`rego_heat_list.csv`) summarizing energy usage for different reactor conditions and ilmenite grades, with results like energy used per kg of regolith and energy for hydrogen production.
+
 """
 
 import csv
@@ -16,64 +31,63 @@ from scipy import integrate
 from scipy.optimize import curve_fit, fsolve
 
 
-# CONSTANTS
-SOLAR_INPUT = 1361  # [W/m^2]
-sigma = 5.6703744e-8  # [W/(m^2*K^4)] Stefan-Boltzmann-Constant
-EMISSIVITY_LUNAR_SURFACE = 0.95  # [-]
-REFLECTIVITY_LUNAR_SURFACE = 0.15  # [-]
-VIEW_FACTOR_SUN_REACTOR = 0.5  # [-]
-# [-]   HTMLI (High-temperature multilayer insulation)
-REFLECTIVITY_HTMLI = 0.9
-EMISSIVITY_HTMLI = 0.1  # [-]
-ABSORBTIVITY_HTMLI = 0.1  # [-]
-λ_HTMLI = 0.03  # [W/(m*K)] Thermal conductivity of HTMLI
-λ_CFI = 0.1  # [W/(m*K)] Thermal conductivity of CFI (ceramic fibre insulation)
-T_LUNAR_SURFACE_IN_SUNLIGHT = 372  # [K]
-T_LUNAR_SURFACE_IN_SHADOW = 92  # [K]
-REGOLITH_DENSITY = 1500  # [kg/m^3]
-DENSITY_CFI = 2730  # [kg/m^3]
-DENSITY_HTMLI = 72  # [kg/m^3]
-# [J/(kg*K)] Assumed to be constant (conservative assumption)
-HEAT_CAPACITY_HYDROGEN = 15300
-MOLAR_MASS_H2 = 2  # [g/mol]
-MOLAR_MASS_ILMENITE = 151.71  # [g/mol]
-MOLAR_MASS_O2 = 32  # [g/mol]
-DELTA_H_REACTION_ILMENITE_HYDROGEN = 40.6  # [kJ/mol]
-# [J/(kg*K)] Assumed to be constant (conservative assumption)
-HEAT_CAPACITY_CFI = 1130
-# [J/(kg*K)] Heat capacity of aluminum (All of the weight of HTMLI comes from the foil)
-HEAT_CAPACITY_HTMLI = 910
+# CONSTANTS for various materials and parameters
+SOLAR_INPUT = 1361  # Solar constant [W/m^2]
+sigma = 5.6703744e-8  # Stefan-Boltzmann constant [W/(m^2*K^4)]
+EMISSIVITY_LUNAR_SURFACE = 0.95  # Emissivity of lunar surface [-]
+REFLECTIVITY_LUNAR_SURFACE = 0.15  # Reflectivity of lunar surface [-]
+VIEW_FACTOR_SUN_REACTOR = 0.5  # View factor between Sun and reactor [-]
 
+# Thermal properties of different materials
+REFLECTIVITY_HTMLI = 0.9  # Reflectivity of high-temperature insulation [-]
+EMISSIVITY_HTMLI = 0.1  # Emissivity of HTMLI [-]
+ABSORBTIVITY_HTMLI = 0.1  # Absorptivity of HTMLI [-]
+λ_HTMLI = 0.03  # Thermal conductivity of HTMLI [W/(m*K)]
+λ_CFI = 0.1  # Thermal conductivity of ceramic fibre insulation (CFI) [W/(m*K)]
 
-# Variables
+# Lunar surface temperature parameters
+T_LUNAR_SURFACE_IN_SUNLIGHT = 372  # Temperature in sunlight [K]
+T_LUNAR_SURFACE_IN_SHADOW = 92  # Temperature in shadow [K]
+REGOLITH_DENSITY = 1500  # Regolith density [kg/m^3]
+DENSITY_CFI = 2730  # Density of CFI insulation [kg/m^3]
+DENSITY_HTMLI = 72  # Density of HTMLI insulation [kg/m^3]
 
-T_pre_heater = 723  #[K]
-CFI_thickness = 0.06  # [m] Ceramic insulation thickness
-HTMLI_thickness = 0.06  # [m] HTMLI insulation thickness
-reactor_height_above_surface = 1  # [m]
-relevant_lunar_surface_radius = 10  # [m]
-relevant_lunar_surface_area = math.pi * relevant_lunar_surface_radius**2  # [m^2]
-T_inner_wall_CFI = 1173  # [K]
-energy_to_heat_regolith_batch = 0  # [kWh]
-fill_level = 0.5
-oxygen_production_rate = 274  # [kg/day] (100 t/year)  # check this number
-batch_reaction_time_in_hours = 2.5 
+# Heat capacities
+HEAT_CAPACITY_HYDROGEN = 15300  # Heat capacity of hydrogen [J/(kg*K)]
+MOLAR_MASS_H2 = 2  # Molar mass of H2 [g/mol]
+MOLAR_MASS_ILMENITE = 151.71  # Molar mass of ilmenite [g/mol]
+MOLAR_MASS_O2 = 32  # Molar mass of O2 [g/mol]
+DELTA_H_REACTION_ILMENITE_HYDROGEN = 40.6  # Heat of reaction for ilmenite reduction [kJ/mol]
+HEAT_CAPACITY_CFI = 1130  # Heat capacity of CFI insulation [J/(kg*K)]
+HEAT_CAPACITY_HTMLI = 910  # Heat capacity of HTMLI insulation [J/(kg*K)]
 
+# Reactor and regolith batch variables
+T_pre_heater = 723  # Pre-heating temperature for hydrogen [K]
+CFI_thickness = 0.06  # Ceramic insulation thickness [m]
+HTMLI_thickness = 0.06  # HTMLI insulation thickness [m]
+reactor_height_above_surface = 1  # Reactor height above lunar surface [m]
+relevant_lunar_surface_radius = 10  # Relevant lunar surface radius [m]
+relevant_lunar_surface_area = math.pi * relevant_lunar_surface_radius**2  # Lunar surface area in m^2
+T_inner_wall_CFI = 1173  # Inner wall temperature of CFI insulation [K]
+energy_to_heat_regolith_batch = 0  # Placeholder for energy to heat regolith batch [kWh]
+fill_level = 0.5  # Fill level in reactor [0-1]
+oxygen_production_rate = 274  # Oxygen production rate [kg/day]
+batch_reaction_time_in_hours = 2.5  # Time for each batch reaction [hours]
 
+# Reactor sizing variables
+ilmenite_percentage_for_reactor_sizing = 0.5  # Percentage of ilmenite for sizing reactor
 
-ilmenite_percentage_for_reactor_sizing = 0.5
-# Reactor Heat-up variables
+# Reactor heat-up parameters
+T_reduction_regolith_batch = 1173  # Temperature of regolith during reduction [K]
+delta_T_insulation = 200  # Temperature change during insulation cooldown [K]
+T_regolith_in = 273  # Temperature of incoming regolith [K]
 
-# [K] Temperature of regolith during reduction
-T_reduction_regolith_batch = 1173  # [K]
-delta_T_insulation = 200  # [K]
-T_regolith_in = 273  # [K]
+# Time parameters for reactor operation
+reactor_loading_time = 0.5  # Loading time [hours]
+reactor_heat_up_time_in_hours = 5  # Reactor heat-up time [hours]
+reactor_unloading_time = 0.5  # Unloading time [hours]
 
-# times:
-reactor_loading_time = 0.5  # [h]
-reactor_heat_up_time_in_hours = 5  # [h]
-reactor_unloading_time = 0.5  # [h]
-
+# Function Definitions:
 
 def ilmenite_to_water_conversion(batch_reaction_time_in_hours):
     """Calculation of how much ilmenite is converted/reacted to water inside the reactor"""
@@ -624,6 +638,4 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
 #print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
 #print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
 #print(ilmenite_conversion_percentage)
-
-
 

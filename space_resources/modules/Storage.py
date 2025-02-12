@@ -4,6 +4,60 @@ Created on Mon Jul 25 08:59:02 2022
 
 @author: Fardin Ghaffari, Anton Morlock
 """
+
+"""
+README
+
+This Python script calculates various thermal properties, heat transfer coefficients, 
+and heat fluxes for a liquid oxygen (LOX) tank operating in a lunar environment. It 
+is designed to model thermal behavior under conditions such as sunlight exposure and 
+shadow, simulating radiative, conductive, and convective heat transfers. 
+
+Key features:
+1. **Material Properties and Initialization**:
+   The code includes parameters for the LOX tank, lunar surface, and vacuum insulation 
+   panel (VIP) to initialize necessary variables.
+
+2. **Heat Transfer Coefficients**:
+   The script computes the heat transfer coefficient between the LOX and the inner tank 
+   wall using fluid dynamics equations, including Prandtl, Grashof, and Nusselt numbers.
+
+3. **Radiative View Factors**:
+   The script determines the radiative view factors for heat transfer between the tank 
+   and the lunar surface, accounting for both sunlight and shadow conditions.
+
+4. **Solar and Lunar Heat Flux**:
+   Heat flux contributions from the sun and the lunar surface are calculated, using 
+   relevant emissivity, reflectivity, and temperature data.
+
+5. **Heat Balance Calculations**:
+   Heat balances are performed to calculate the outer surface temperature of the tank in 
+   sunlight and shadow using numerical solvers (`scipy.optimize.fsolve`).
+
+6. **Heat Flux into the Tank**:
+   The final heat flux into the LOX tank, considering conductive and radiative contributions, 
+   is computed to estimate thermal losses.
+
+Modules and Libraries:
+- The script uses `math` for mathematical operations and `scipy.optimize` for solving 
+  heat balance equations.
+- Dictionaries store and update physical and material properties dynamically.
+
+Customization:
+- Thermal properties such as VIP thermal conductivity, VIP emissivity, and reflectivity 
+  can be adjusted via function parameters.
+
+Usage Notes:
+1. Update material properties and dimensions in the initialization section as required 
+   for specific scenarios.
+2. Ensure `scipy` is installed to use the numerical solver.
+
+
+Application:
+This script can be used to assess the thermal performance of cryogenic storage systems in 
+lunar environments and assist in designing thermal insulation strategies for space missions.
+"""
+
 import csv
 import math
 
@@ -239,7 +293,7 @@ def heat_transfer_coefficient_calculation():
     # CALCULATION
     prandtl_number = LOX_DYNAMIC_VISCOSITY * \
         LOX_HEAT_CAPACITY/LOX_THERMAL_CONDUCTIVITY
-    grashof_number = (1/LOX_temperature) * LUNAR_GRAVITY * LOX_DENSITY**2 * (
+    grashof_number = 0.002 * LUNAR_GRAVITY * LOX_DENSITY**2 * (
         steel_wall_inner_temperature - LOX_temperature) * steel_wall_inner_radius**3/LOX_DYNAMIC_VISCOSITY**2
     nusselt_number = 0.00053 * (prandtl_number * grashof_number)**(1/2)
     heat_transfer_coefficient = nusselt_number * \
@@ -477,12 +531,12 @@ def zero_boil_off_system_power_consumption(cryocooler_efficiency=0.2):
         1000  # /1000 to convert from Wh to kWh
     Energy_per_kg_LOX = Energy/mLOX_produced_in_storage_time
 
-
+    print("ZBO", Energy_per_kg_LOX)
     # RETURNING VALUES TO DICTIONARY
     zero_boil_off_system["COP_Carnot"] = COP_Carnot
     zero_boil_off_system["COP"] = COP
     zero_boil_off_system["Power_consumption"] = Power_consumption
     zero_boil_off_system["Energy"] = Energy
     zero_boil_off_system["Energy_per_kg_LOX"] = Energy_per_kg_LOX
-
+    #print("ZBO", Energy_per_kg_LOX)
 

@@ -25,7 +25,7 @@ def get_range_dict():
         "cryocooler_efficiency":   [0.15, 0.2, 0.25],
         "T_hot_reservoir_carnot_cycle":   [183, 233, 283],
         "T_of_incoming_oxygen": [330, 340, 350],
-        "enrichment_factor":   [1.25, 6.32, 11.39],
+        "enrichment_factor":   [1.5, 6, 10.5],
         "benef_ilmenite_recovery":   [0.24, 0.505, 0.77],
         "motor_efficiency":   [0.4, 0.6, 0.8],
         "mRover":   [47, 67, 87],
@@ -103,11 +103,15 @@ def simulate_events_simultaneous(range_dict, N=10, epsilon=0.00001):
         energy_total.append(energy_as_func_of_ilmenite_list)
         energy_per_process.append(energy_list)
 
+        print("i in C: ", i)
+
     energy_per_process = np.array(energy_per_process)
     energy_total = np.array(energy_total)
 
     result_dict = [energy_per_process, energy_total]
-
+    
+    
+    
     return ilmenite_grade_list, result_dict
 
 
@@ -132,5 +136,5 @@ def monte_carlo_estimation_all_params(N=10):
 
 
 N = 1000
-monte_carlo_estimation_individual(N=N)
+#monte_carlo_estimation_individual(N=N)
 monte_carlo_estimation_all_params(N=N)

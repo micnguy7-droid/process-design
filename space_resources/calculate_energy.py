@@ -2,11 +2,11 @@
 """
 Created on Sat Jun 18 14:02:33 2022
 #H2_R2O2 model:    
-author: Fardin Ghaffari, Anton Morlock, Dorian Leger
+author: Dorian Leger, Fardin Ghaffari, Anton Morlock, 
 
-Version 1.0
+Version 2.0
 
-DL test commit Dec 2nd 2023
+test Aug 24 2024
 """
 
 #If new values for parameters are tried, modify the function call, not the function definition, as the function call overrites the default value from the function definition.
@@ -36,11 +36,12 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
     B_out_regolith = beneficiation.B_out_regolith
     R_in_regolith = B_out_regolith
 
-    post_benef_ilmenite_grade = round(pre_benef_ilmenite_grade*100*beneficiation.enrichment_factor)
+    #post_benef_ilmenite_grade = round(pre_benef_ilmenite_grade*100*beneficiation.enrichment_factor)
 
     #prevent the post benef ilmenite grade to rise above a feasible threshhold
-    if(post_benef_ilmenite_grade >= 99):
-        post_benef_ilmenite_grade = 99
+    #if(post_benef_ilmenite_grade >= 99):
+        #post_benef_ilmenite_grade = 99
+    
     B_out_ilmenite_mols = B_out_ilmenite/ilmenite_molar_kg_mass
 
     #inputs and outputs of water and O2 between different modules
@@ -58,7 +59,11 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
     X_energy = X_in_regolith * rego_exca
     T_energy = X_in_regolith * rego_tran
     B_energy = B_in_regolith * LUNAR_GRAVITY * 1/(3.6e6) + (B_in_regolith - B_out_regolith) * rego_tran #Lift regolith 1m + transport it 1 km away from site
-    R_energy = R_in_regolith * rego_heat_list[post_benef_ilmenite_grade-1]
+    
+    post_benef_ilmenite_grade = round(beneficiation.post_benef_ilmenite_grade*100)
+    R_energy = R_in_regolith * rego_heat_list[post_benef_ilmenite_grade*2-1]
+
+    #R_energy = R_in_regolith * rego_heat_list[post_benef_ilmenite_grade-1]
     E_energy = E_in_water_mols * water_elec
     L_energy = L_in_dioxy_mols * dioxy_liq
     S_energy = S_out_dioxy_kg * storage_cooling
@@ -68,10 +73,45 @@ def perform_calculation(pre_benef_ilmenite_grade, rego_exca, rego_tran, rego_hea
     energy_per_kg_O2 = energy/S_out_dioxy_kg
     total_energy_per_kg_O2 = total_energy/S_out_dioxy_kg
     
+
+    #for testing in April 2024 - DL
+    if pre_benef_ilmenite_grade==0.1:
+        #print(water_elec)
+        print("pre_ilm% :", pre_benef_ilmenite_grade*100, "post_ilm% :", post_benef_ilmenite_grade,"energy: ", round(total_energy_per_kg_O2,4), "kWh/kg LOX","\n")
+        '''
+        print("X", X_energy*1000)
+        print("T",T_energy*1000)
+        print("B",B_energy*1000)
+        print("R",R_energy*1000)
+        print("E",E_energy*1000)
+        print("L",L_energy*1000)
+        print("S",S_energy*1000)
+        '''
+    ##end test##
+
+
+
+
+
+
+
+
     return energy_per_kg_O2, total_energy_per_kg_O2
 
 
-def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.6, enrichment_factor = 6, benef_ilmenite_recovery= 0.51, motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, T_of_incoming_oxygen=340, vip_thickness=0.025, vip_thermal_conductivity=0.006, vip_emissivity=0.05,cryocooler_efficiency_storage=0.2,batch_reaction_time_in_hours=2.5, CFI_thickness=0.06, HTMLI_thickness=0.06, delta_T_insulation=200, reactor_heat_up_time_in_hours=5, T_regolith_in=273, T_pre_heater=723, cohCoeff=2100, intAngle=45, extAngle=10):
+
+
+
+
+def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.6, enrichment_factor = 6, 
+                               benef_ilmenite_recovery= 0.505, motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, 
+                               T_of_incoming_oxygen=340, vip_thickness=0.025, vip_thermal_conductivity=0.006, vip_emissivity=0.055,
+                               cryocooler_efficiency_storage=0.2,batch_reaction_time_in_hours=2.5, CFI_thickness=0.06, 
+                               HTMLI_thickness=0.06, delta_T_insulation=200, reactor_heat_up_time_in_hours=5, T_regolith_in=273, 
+                               T_pre_heater=723, cohCoeff=1100, intAngle=45, extAngle=12.5):
+
+=======
+
     """calculates the energy requirements of oxygen production given the process parameters"""
    
     'production rate kg-regolith-excavated /24-hours'
@@ -117,7 +157,8 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
     
     S_out_dioxy_kg_list = []
 
-    ilmenite_wt = np.linspace(enrichment_factor*2,199-199%enrichment_factor,199//enrichment_factor-1)/(enrichment_factor*200)
+    #ilmenite_wt = np.linspace(enrichment_factor*2,199-199%enrichment_factor,199//enrichment_factor-1)/(enrichment_factor*200)
+    ilmenite_wt = np.linspace(0.01, 0.16, 31)
 
     for i, pre_benef_ilmenite_grade_loop in enumerate(ilmenite_wt):
 
@@ -157,3 +198,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
 
     return ilmenite_grade_list, energy_list_per_kg_LOX, energy_as_func_of_ilmenite_list, energy_slice, total_energy_as_func_of_ilmenite_list, S_out_dioxy_kg_list
 
+
+test=True
+if test==True:
+    energy_as_func_of_ilmenite()

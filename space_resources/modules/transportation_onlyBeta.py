@@ -1,4 +1,42 @@
+"""
+Author: Baptiste Valentin
+"""
 
+"""
+Transportation Energy Calculation Module
+----------------------------------------
+
+This module calculates the energy required to transport regolith between two given sites.
+
+**Description**
+This module relies on a semi-empirical method of Terramechanics to analyze the locomotion properties of a vehicle on the lunar surface.
+The global energy requirement calculated takes a round trip into consideration: an outward trip with an empty rover, and a return
+trip with a rover full of regolith.
+
+**Main variables**
+- Soil parameters:
+    ° 'gVal': gravitational constant [m/s2]
+    ° 'rhoVal': density [kg/m3]
+    ° 'nVal': Exponent describing soil compressibility []
+    ° 'kcVal': Cohesion modulus [N/m^n+1]
+    ° 'kphiVal': Friction modulus [N/m^n+2]
+    ° 'cVal': Cohesion [Pa]
+    ° 'phiVal': Friction angle [rad]
+    ° 'kVal': Shear modulus [m]
+- Vehicle parameters:
+    ° 'velocityVal': velocity of the vehicle [m/s]
+    ° 'motor_efficiencyVal': motor efficiency []
+    ° 'mRover': mass of the vehicle [kg]
+    ° 'mRegolith": mass of the conveyed regolith (per trip) [kg]
+    ° 'wheelbaseVal': distance between the front wheels' axle and the rear wheels' axle [m]
+    ° 'heightCOGVal': height of the center of gravity [m]
+- Wheel parameters:
+    ° 'WheelRadiusVal': radius of the wheel(s) [m]
+    ° 'WheelWidthVal': width of the wheel(s) [m] 
+- Trip parameters:
+    ° 'SlopeVal': Slope angle of the soil where the vehicle is traveling [rad]
+    ° 'DistanceToTravel': distance between the excavation and the beneficiation site [m]
+"""
 
 ########################################### imports #############################################################
 
@@ -17,12 +55,22 @@ import warnings
 
 
 def Fz_front(mTotVar, gVar, slopeVar, lVar, hVar):
-    """Vertical reaction force on one of the front wheels"""
-    # l is the distance between the front and rear wheels, h is the height of the center of gravity
+    """
+    Calculates the vertical reaction force on one of the front wheels.
+
+    Args:
+        mTotVar (float): total mass of the vehicle [kg]
+        gVar (float): gravitational constant [m/s2]
+        slopeVar (float): slope angle of the soil where the vehicle is traveling [rad]
+        lVar (float): distance between the front wheels' axle and the rear wheels' axle [m]
+        hVar (float): height of the center of gravity [m]
+
+    Returns:
+        float: vertical reaction force on one of the front wheels [N].
+    """
 
     if slopeVar >= 0:
 
-        # Vertical force on the front wheels
         return (mTotVar / 2 * gVar * math.cos(slopeVar + math.atan(hVar / (lVar / 2))) * (math.sqrt((lVar / 2) ** 2 + hVar ** 2))) / (lVar)
 
         # return m_tot / 4 * g (for check purposes, should give the same when the slope is zero).
@@ -30,15 +78,24 @@ def Fz_front(mTotVar, gVar, slopeVar, lVar, hVar):
     else:
 
         return (mTotVar / 2 * gVar * math.cos(math.pi / 2 - slopeVar - math.atan((lVar / 2) / hVar)) * (math.sqrt((lVar / 2) ** 2 + hVar ** 2))) / (lVar)
-
-
 
 
 def Fz_rear(mTotVar, gVar, slopeVar, lVar, hVar):
-    """Vertical reaction force on one of the rear wheels"""
+    """
+    Calculates the vertical reaction force on one of the rear wheels.
+
+    Args:
+        mTotVar (float): total mass of the vehicle [kg]
+        gVar (float): gravitational constant [m/s2]
+        slopeVar (float): slope angle of the soil where the vehicle is traveling [rad]
+        lVar (float): distance between the front wheels' axle and the rear wheels' axle [m]
+        hVar (float): height of the center of gravity [m]
+
+    Returns:
+        float: vertical reaction force on one of the rear wheels [N].
+    """
     if slopeVar >= 0:
 
-        # Vertical force on the rear wheels
         return (mTotVar / 2 * gVar * math.cos(math.pi / 2 - slopeVar - math.atan((lVar / 2) / hVar)) * (math.sqrt((lVar / 2) ** 2 + hVar ** 2))) / (lVar)
 
         # return m_tot / 4 * g (for check purposes, should give the same when the slope is zero).
@@ -48,21 +105,63 @@ def Fz_rear(mTotVar, gVar, slopeVar, lVar, hVar):
         return (mTotVar / 2 * gVar * math.cos(slopeVar + math.atan(hVar / (lVar / 2))) * (math.sqrt((lVar / 2) ** 2 + hVar ** 2))) / (lVar)
 
 
-# Radial stress
-
 def sigma(thetaVar, theta0Var, bVar, rVar, nVar, kcVar, kphiVar):
+    """
+    Calculates the normal/radial component of the contact stress between the wheel and the soil.
+
+    Args:
+        thetaVar: angular position along the wheel-terrain interface [rad]
+        thetaOVar: entry angle (where the wheel first contacts the terrain [rad]
+        bVar: width of the wheel(s) [m]
+        rVar: radius of the wheel(s) [m]
+        nVar: Exponent describing soil compressibility []
+        kcVar: Cohesion modulus [N/m^n+1]
+        kphiVar: Friction modulus [N/m^n+2]
+
+    Returns:
+        float: the normal/radial component of the contact stress between the wheel and the soil at a given angular position [Pa].
+    """
 
     return (rVar ** nVar) * (kcVar / bVar + kphiVar) * (math.cos(thetaVar) - math.cos(theta0Var)) ** nVar
 
 
 def delta_s(thetaVar, theta0Var, sVar, rVar):
+    """
+    Calculates the shear displacement (how much the soil deforms under the wheel due to shear forces).
+
+    Args:
+        thetaVar: angular position along the wheel-terrain interface [rad]
+        thetaOVar: entry angle (where the wheel first contacts the terrain [rad]
+        svar: slip ratio []
+        rVar: radius of the wheel(s) [m]
+
+    Returns:
+        float: the shear displacement at a given angular position [m].
+    """
 
     return rVar * ((theta0Var - thetaVar) - (1 - sVar) * (math.sin(theta0Var) - math.sin(thetaVar)))
 
 
-# Tangential stress
-
 def tau(thetaVar, theta0Var, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar):
+    """
+    Calculates the tangential component of the contact stress between the wheel and the soil.
+
+    Args:
+        thetaVar: angular position along the wheel-terrain interface [rad]
+        thetaOVar: entry angle (where the wheel first contacts the terrain [rad]
+        svar: slip ratio []
+        bVar: width of the wheel(s) [m]
+        rVar: radius of the wheel(s) [m]
+        nVar: Exponent describing soil compressibility []
+        kcVar: Cohesion modulus [N/m^n+1]
+        kphiVar: Friction modulus [N/m^n+2]
+        cVar: Cohesion [Pa]
+        kVar: Shear modulus [m]
+        phiVar: Friction angle [rad]
+
+    Returns:
+        float: the tangential component of the contact stress between the wheel and the soil at a given angular position [Pa].
+    """
 
     return (cVar + sigma(thetaVar, theta0Var, bVar, rVar, nVar, kcVar, kphiVar) * math.tan(phiVar)) * (1 - math.exp(-delta_s(thetaVar, theta0Var, sVar, rVar) / kVar))
 
@@ -93,7 +192,7 @@ def fun_to_solve_rear(theta0Var, sVar, mTotVar, gVar, slopeVar, lVar, hVar, bVar
  
 
 def fNy(phiVar):
-    """Function that extrapolates the value of Ny based on phi"""
+    """Function that extrapolates the value of Ny (soil weight bearing capacity factor) based on phiVar (friction angle)"""
     phiVec = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
 
               29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
@@ -113,9 +212,8 @@ def fNy(phiVar):
     return NyVar
 
 
-
 def fNc(phiVar):
-    """Function that extrapolates the value of Nc based on phi"""
+    """Function that extrapolates the value of Nc (cohesion bearing capacity factor) based on phiVar (friction angle)"""
     phiVec = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
 
               29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
@@ -136,11 +234,33 @@ def fNc(phiVar):
 
 
 def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar):
-    """Function that computes the drawbar pull of the rover from its slip, mass, wheel width, wheel radius, and the slope value."""
+    """
+    Calculates the drawbar pull of the rover (net tractive force available for moving the vehicle).
+
+    Args:
+        sVar: slip ratio []
+        mTotVar: total mass of the vehicle [kg]
+        gVar: gravitational constant [m/s2]
+        bVar: width of the wheel(s) [m]
+        rVar: radius of the wheel(s) [m]
+        slopeVar: slope angle of the soil where the vehicle is traveling [rad]
+        lVar: distance between the front wheels' axle and the rear wheels' axle [m]
+        hVar: height of the center of gravity [m]
+        nVar: Exponent describing soil compressibility []
+        kcVar: Cohesion modulus [N/m^n+1]
+        kphiVar: Friction modulus [N/m^n+2]
+        cVar: Cohesion [Pa]
+        kVar: Shear modulus [m]
+        phiVar: Friction angle [rad]
+
+    Returns:
+        float: the drawbar pull [N].
+    """
+
     sol_theta0_front = root_scalar(fun_to_solve_front, args=(sVar, mTotVar, gVar, slopeVar, lVar,
                                    hVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar), method='toms748', bracket=[0, 1])
 
-    z0_front = rVar * (1 - math.cos(sol_theta0_front.root))
+    z0_front = rVar * (1 - math.cos(sol_theta0_front.root))  # Sinkage of the front wheels [m]
 
     l0_front = sol_theta0_front.root * rVar
 
@@ -160,7 +280,7 @@ def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kc
     sol_theta0_rear = root_scalar(fun_to_solve_rear, args=(sVar, mTotVar, gVar, slopeVar, lVar,
                                   hVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar), method='toms748', bracket=[0, 1])
 
-    z0_rear = rVar * (1 - math.cos(sol_theta0_rear.root))
+    z0_rear = rVar * (1 - math.cos(sol_theta0_rear.root))  # Sinkage of the rear wheels [m]
 
     l0_rear = sol_theta0_rear.root * rVar
 
@@ -177,33 +297,23 @@ def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kc
 
     # End verify
 
-    # Traction effort (MF010: page 306)
-
     Ft_front = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a front wheel [N]
 
     Ft_rear = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
-
-    # Compaction resistance with these sinkages
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a rear wheel [N]
 
     Rc_front = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_front ** (nVar + 1)) / (nVar + 1)  # [N]
+        (z0_front ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a front wheel [N]
 
     Rc_rear = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_rear ** (nVar + 1)) / (nVar + 1)  # [N]
+        (z0_rear ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a rear wheel [N]
 
-    # Slope resistance
+    R_slope = mTotVar * gVar * math.sin(slopeVar)  # Slope resistance [N]
 
-    R_slope = mTotVar * gVar * math.sin(slopeVar)
-
-    # Drawbar pull (of the whole vehicle)
-
-    db_pull = 2 * Ft_front + 2 * Ft_rear - 2 * Rc_front - 2 * Rc_rear - R_slope
+    db_pull = 2 * Ft_front + 2 * Ft_rear - 2 * Rc_front - 2 * Rc_rear - R_slope  # Drawbar pull (of the whole vehicle) [N]
 
     return db_pull
-
-
 
 
 def energy_requirements(sVar, mTotVar, vVar, bVar, rVar, slopeVar, lVar, hVar, gVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar, etaVar):
@@ -251,43 +361,29 @@ def energy_requirements(sVar, mTotVar, vVar, bVar, rVar, slopeVar, lVar, hVar, g
 
     # End verify
 
-    # Traction effort (MF010: page 306)
-
     Ft_front = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a front wheel [N]
 
     Ft_rear = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
-
-    # Compaction resistance with these sinkages
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a rear wheel [N]
 
     Rc_front = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_front ** (nVar + 1)) / (nVar + 1)  # [N]
+        (z0_front ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a front wheel [N]
 
     Rc_rear = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_rear ** (nVar + 1)) / (nVar + 1)  # [N]
-
-    # Torque exerted on the wheel (MF010: page 306)
-
-    # Solution: new computation of tau with the minimum of b and l0_rear/front
+        (z0_rear ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a rear wheel [N]
 
     Tr_front = bVar * rVar ** 2 * integrate.quad(tau, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Torque exerted on a front wheel [N.m]
 
     Tr_rear = bVar * rVar ** 2 * integrate.quad(tau, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Torque exerted on a rear wheel [N.m]
 
-    # Rotation speed
+    omega_r = vVar / (rVar * (1 - sVar))  # Rotation speed [rad/s]
 
-    omega_r = vVar / (rVar * (1 - sVar))
+    Power_front = Tr_front * omega_r  # Power required for a front wheel [W]
 
-    # print("Rotation speed wheels:", omega_r, "[rad/s]")
-
-    # Power requirements (we will compute it only for the right slip = 0)
-
-    Power_front = Tr_front * omega_r
-
-    Power_rear = Tr_rear * omega_r
+    Power_rear = Tr_rear * omega_r  # Power required for a rear wheel [W]
 
     Locomotion_power = (2 * Power_front + 2 * Power_rear) / (etaVar)  # [W]
 
@@ -297,8 +393,27 @@ def energy_requirements(sVar, mTotVar, vVar, bVar, rVar, slopeVar, lVar, hVar, g
 
 
 def slip_required(mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar):
-    """Function that computes the slip required so that the rover can move"""
-    # Research where the drawbar pull = 0
+    """
+    Calculates the slip required so that the vehicle can move (by researching where the drawbar pull = 0).
+
+    Args:
+        mTotVar: total mass of the vehicle [kg]
+        gVar: gravitational constant [m/s2]
+        bVar: width of the wheel(s) [m]
+        rVar: radius of the wheel(s) [m]
+        slopeVar: slope angle of the soil where the vehicle is traveling [rad]
+        lVar: distance between the front wheels' axle and the rear wheels' axle [m]
+        hVar: height of the center of gravity [m]
+        nVar: Exponent describing soil compressibility []
+        kcVar: Cohesion modulus [N/m^n+1]
+        kphiVar: Friction modulus [N/m^n+2]
+        cVar: Cohesion [Pa]
+        kVar: Shear modulus [m]
+        phiVar: Friction angle [rad]
+
+    Returns:
+        float: the slip required so that the vehicle can move [].
+    """
 
     # drawbar pull when slip = 0.
     Drawbar_pull_slip_0 = drawbar_pull(
@@ -324,9 +439,13 @@ def slip_required(mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kcVar, 
     return Required_slip
 
 
-
 def compute_beta(mRoverVar, mRegolithVar, gVar, bVar, rVar, slopeVar, lVar, hVar, vVar, etaVar, distanceVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar):
-    """Function that computes beta [kJ/kg/km]"""
+    """
+    Calculates the energy requirements for the transportation module.
+
+    Returns:
+        float: the energy requirements for transporting regolith between two given sites, per kilogram regolith and per kilometer [kJ/kg/km].
+    """
     MassOutwardTrip = mRoverVar
 
     MassReturnTrip = mRoverVar + mRegolithVar
@@ -353,7 +472,6 @@ def compute_beta(mRoverVar, mRegolithVar, gVar, bVar, rVar, slopeVar, lVar, hVar
 
     # Round trip
 
-    # [J] for a mass of regolith of 20 [kg] (max load), and a distance of 1 [km]
     EnergyRoundTrip = EnergyOutward + EnergyReturn
 
     Beta = EnergyRoundTrip/(mRegolithVar*distanceVar)  # [J/kg/m] or [kJ/kg/km]
@@ -365,51 +483,42 @@ def compute_beta(mRoverVar, mRegolithVar, gVar, bVar, rVar, slopeVar, lVar, hVar
 # Regolith properties (from book "Introduction to the Mechanics of Space Robots").
 gVal = 1.62  # 1.62  # Gravity (m/s2)
 
-rhoVal = 1600  # Density (kg/m3), 1600 is taken as reference.
+rhoVal = 1600  # Density (kg/m3)
 
 nVal = 1  # Exponent
 
-kcVal = 1100  # Coheslion modulus (N/m^n+1) '#1400
+kcVal = 1100  # Cohesion modulus (N/m^n+1) '#1400
 
 kphiVal = 820000  # Friction modulus (N/m^n+2)
 
 cVal = 170  # Cohesion (Pa)
 
-phiVal = math.radians(45)  # Friction angle (rad) 37 before
+phiVal = math.radians(45)  # Friction angle (rad)
 
 kVal = 18e-3  # Shear modulus (m)
 
 
 ############################################ Other ASSUMPTIONS ###################################################
 
-# ASSUMPTIONS: velocity, motor efficiency, total mass, wheel dimensions, wheelbase, height of CoG.
+velocityVal = 0.49 # [m/s], maximum speed from "RASSOR, the reduced gravity excavator."
 
-# Parameters (90 kg of regolith per trip)
-
-# [m/s], maximum speed from "RASSOR, the reduced gravity excavator."
-velocityVal = 0.49
-
-motor_efficiencyVal = 0.6  # 0.6
+motor_efficiencyVal = 0.6
 
 mRover = 67  # [kg] Total mass of RASSOR2
 
-# [kg] The rover is assumed to transport the maximum amount of regolith each time (from "RASSOR, the reduced gravity excavator.").
-mRegolith = 90
+mRegolith = 90  # [kg] The rover is assumed to transport the maximum amount of regolith each time (from "RASSOR, the reduced gravity excavator.").
 
 WheelRadiusVal = 0.4318 / 2  # [m] Wheel radius (17 inches for the full wheel)
 
-WheelWidthVal = 0.1  # [m] Wheel width (from the picture?)
+WheelWidthVal = 0.1  # [m] Wheel width
 
 wheelbaseVal = 0.5  # [m]
 
-heightCOGVal = 0.1  # [m]
-
-# The CoG is assumed to be centered
+heightCOGVal = 0.1  # [m] (The CoG is assumed to be centered)
 
 SlopeVal = 0  # [rad] The soil is assumed to be flat
 
-# [m] Distance between the excavation and the beneficiation site
-DistanceToTravel = 1000
+DistanceToTravel = 1000  # [m] Distance between the excavation and the beneficiation site
 
 NcVal = fNy(phiVal*180/math.pi)  # Coefficient based on phi
 
