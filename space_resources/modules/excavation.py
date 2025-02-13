@@ -73,19 +73,6 @@ def Balovnev(reg_vars, reg_vars2, exc_vars, exc_vars2):
     eb = exc_vars2[4]
     r_scoop = 3.125/5.3125*R        # Length of side
 
-    # bucket_excavation_arc = ma.acos((R - depth)/R)
-    # bucket_drum_volume = (w*ma.pi*(R**2)*(bucket_excavation_arc/360) -
-    #                1/2*w*(R**2)*ma.sin(bucket_excavation_arc)*
-    #                cos(bucket_excavation_arc))
-    # scoop_volume = (w*ma.pi*(r_scoop**2)*(62/360) -
-    #                1/2*w*(r_scoop**2)*ma.sin(62*ma.pi/180)*ma.cos(62*ma.pi/180))
-    # shovel_excavation_arc = ma.acos((r - depth)/r)
-    # bucket_shovel_volume = (w*ma.pi*(r**2)*(shovel_excavation_arc) -
-    #                1/2*w*(r**2)*ma.sin(shovel_excavation_arc)*
-    #                ma.cos(shovel_excavation_arc))
-    # prism_volume = bucket_shovel_volume - scoop_volume - bucket_drum_volume;
-    # q = prism_volume*gam
-
     D = depth    # Length of side
 
     # Balovnev function calcs
