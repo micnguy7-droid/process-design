@@ -25,10 +25,9 @@ Output:
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from calculate_energy import energy_as_func_of_ilmenite
 from matplotlib import cm
 from modules.hydrogen_reduction import *
-from calculate_energy import energy_as_func_of_ilmenite
-
 
 enrichment_factor = 6
 
@@ -42,7 +41,8 @@ muted = sns.color_palette(palette="muted", as_cmap=True)
 fig, (ax2, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(9, 5))
 fig2, (ax4, ax3) = plt.subplots(nrows=1, ncols=2, figsize=(9, 5))
 
-ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy, total_energy_as_func_of_ilmenite_list, S_out_dioxy_kg_list = energy_as_func_of_ilmenite(enrichment_factor = enrichment_factor)
+ilmenite_grade_list, energy_list, energy_as_func_of_ilmenite_list, energy, total_energy_as_func_of_ilmenite_list, S_out_dioxy_kg_list = energy_as_func_of_ilmenite(
+    enrichment_factor=enrichment_factor)
 
 
 '=================================Color palette and lists for bar plot (total energy)================================='
@@ -63,7 +63,7 @@ p1 = ax1.bar(energy_consumers_full, energy, color=colors_bars)
 
 '===================================plot options and labels bar plot (total energy)==================================='
 ax1.grid(axis="y")
-ax1.set_title('B', loc='left', fontsize =20)
+ax1.set_title('B', loc='left', fontsize=20)
 ax1.set_ylabel('kWh/kg LOX')
 fig.subplots_adjust(wspace=0.3, hspace=0.5)
 index = -1
@@ -80,13 +80,18 @@ for bar in p1:
 
 
 '=============================Color palette and lists for stacked bar plot (total energy)============================='
-legend_stackplot = energy_consumers_full #["Excavation", "Transportation", "Beneficiation", "Hydrogen Reduction", "Electrolysis", "Liquefaction", "Storage"]
-colors_stackplot = [viridis(0.2), "grey", "orange", "red", viridis(0.6), viridis(0.45), viridis(0.95)]
+# ["Excavation", "Transportation", "Beneficiation", "Hydrogen Reduction", "Electrolysis", "Liquefaction", "Storage"]
+legend_stackplot = energy_consumers_full
+colors_stackplot = [viridis(0.2), "grey", "orange",
+                    "red", viridis(0.6), viridis(0.45), viridis(0.95)]
 
-energy_rearranged = np.array([energy_list[6], energy_list[5], energy_list[4], energy_list[1], energy_list[0], energy_list[2], energy_list[3]])
-legend_rearranged = np.array([legend_stackplot[6], legend_stackplot[5], legend_stackplot[4], legend_stackplot[1], legend_stackplot[0], legend_stackplot[2], legend_stackplot[3]])
+energy_rearranged = np.array([energy_list[6], energy_list[5], energy_list[4],
+                             energy_list[1], energy_list[0], energy_list[2], energy_list[3]])
+legend_rearranged = np.array([legend_stackplot[6], legend_stackplot[5], legend_stackplot[4],
+                             legend_stackplot[1], legend_stackplot[0], legend_stackplot[2], legend_stackplot[3]])
 
-colors = [viridis(0.95), viridis(0.6), viridis(0.45), "red", "orange", "grey", viridis(0.2)]
+colors = [viridis(0.95), viridis(0.6), viridis(
+    0.45), "red", "orange", "grey", viridis(0.2)]
 
 '===========================================stacked bar plot (total energy)==========================================='
 barwidth = 0.4
@@ -94,23 +99,22 @@ barwidth = 0.4
 prev_energy = np.zeros(len(ilmenite_grade_list))
 bars = []
 for energy, legend, c in zip(energy_rearranged, legend_rearranged, colors):
-    bars.append(ax2.bar(ilmenite_grade_list, energy, bottom=prev_energy, color=c, label=legend, width=barwidth))
+    bars.append(ax2.bar(ilmenite_grade_list, energy,
+                bottom=prev_energy, color=c, label=legend, width=barwidth))
     prev_energy = prev_energy + energy
-
 
 
 '====================================plot options stacked bar plot (total energy)====================================='
 
 handles, labels = ax2.get_legend_handles_labels()
-order = [6,5,4,3,2,1,0]
+order = [6, 5, 4, 3, 2, 1, 0]
 ax2.grid(axis="y")
-ax2.set_title('A', loc='left', fontsize =20)
+ax2.set_title('A', loc='left', fontsize=20)
 ax2.set_xlabel("Ilmenite concentration [wt%]")
 ax2.set_ylabel('kWh/kg LOX')
-ax2.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-ax2.set_xlim((0.75, min(15.25,max(ilmenite_grade_list)+0.25)))
-ax2.legend([handles[idx] for idx in order],[labels[idx] for idx in order])
-
+ax2.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+ax2.set_xlim((0.75, min(15.25, max(ilmenite_grade_list)+0.25)))
+ax2.legend([handles[idx] for idx in order], [labels[idx] for idx in order])
 
 
 '====================================================================================================================='
@@ -122,21 +126,22 @@ ax2.legend([handles[idx] for idx in order],[labels[idx] for idx in order])
 reactor_energy_sinks = ["Hydrogen heating", "Insulation heat loss",
                         "Endothermic reaction", "Regolith heating"]
 reactor_energy_sinks_bar_plot = ["Regolith heating", "Hydrogen heating",
-                        "Insulation heat loss","Endothermic reaction"]
+                                 "Insulation heat loss", "Endothermic reaction"]
 reactor_energies = [energy_to_heat_regolith_batch_at_10_perc_ilm, energy_to_heat_hydrogen_at_10_perc_ilm, Q_total_lost_at_10_perc_ilm+total_energy_to_heat_insulation_at_10_perc_ilm,
                     energy_endothermic_ilmenite_H2_reaction_at_10_perc_ilm]
-reactor_colors = ['#82C3EC','#4B56D2','#000000','#A9A9A9']
-reactor_colors_bar_plot = ['#A9A9A9','#82C3EC','#4B56D2','#000000']
+reactor_colors = ['#82C3EC', '#4B56D2', '#000000', '#A9A9A9']
+reactor_colors_bar_plot = ['#A9A9A9', '#82C3EC', '#4B56D2', '#000000']
 sum_energy_reactor = np.sum(reactor_energies)
 labels_reactor = np.round(reactor_energies/sum_energy_reactor*100, 1)
 
 
 '==============================================bar plot (reactor energy)=============================================='
-p3 = ax3.bar(reactor_energy_sinks_bar_plot, reactor_energies, color = reactor_colors_bar_plot)
+p3 = ax3.bar(reactor_energy_sinks_bar_plot,
+             reactor_energies, color=reactor_colors_bar_plot)
 
 '==================================plot options and labels bar plot (reactor energy)=================================='
 ax3.grid(axis="y")
-ax3.set_title('B',loc='left', fontsize =20)
+ax3.set_title('B', loc='left', fontsize=20)
 ax3.set_ylabel('kWh/kg LOX')
 index = -1
 for bar in p3:
@@ -151,24 +156,27 @@ for bar in p3:
              weight='bold')
 
 '=============================Color palette and lists for stacked bar plot (total energy)============================='
-#slicing energy arrays to be identical to the total energy plots
-#energy lists taken directly from the reactor module
-energy_to_heat_hydrogen_list = np.array(energy_to_heat_hydrogen_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
-total_energy_to_heat_insulation_list = np.array(total_energy_to_heat_insulation_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
-energy_endothermic_ilmenite_H2_reaction_list = np.array(energy_endothermic_ilmenite_H2_reaction_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
-Q_total_lost_list = np.array(Q_total_lost_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
+# slicing energy arrays to be identical to the total energy plots
+# energy lists taken directly from the reactor module
+energy_to_heat_hydrogen_list = np.array(
+    energy_to_heat_hydrogen_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
+total_energy_to_heat_insulation_list = np.array(
+    total_energy_to_heat_insulation_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
+energy_endothermic_ilmenite_H2_reaction_list = np.array(
+    energy_endothermic_ilmenite_H2_reaction_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
+Q_total_lost_list = np.array(
+    Q_total_lost_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
 Insulation_heat_lost_list = total_energy_to_heat_insulation_list + Q_total_lost_list
-energy_to_heat_regolith_batch_list = np.array(energy_to_heat_regolith_batch_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
-energy_list_reactor = np.sum([energy_to_heat_hydrogen_list,total_energy_to_heat_insulation_list,energy_endothermic_ilmenite_H2_reaction_list,Q_total_lost_list,energy_to_heat_regolith_batch_list],axis=0)
-
-
-
+energy_to_heat_regolith_batch_list = np.array(
+    energy_to_heat_regolith_batch_list[enrichment_factor*2-1:199:enrichment_factor])[:len(ilmenite_grade_list)]
+energy_list_reactor = np.sum([energy_to_heat_hydrogen_list, total_energy_to_heat_insulation_list,
+                             energy_endothermic_ilmenite_H2_reaction_list, Q_total_lost_list, energy_to_heat_regolith_batch_list], axis=0)
 
 
 '==========================================stacked bar plot (reactor energy)=========================================='
 
-#print("en H list", len(energy_to_heat_hydrogen_list))
-#print("ilm g list", len(ilmenite_grade_list))
+# print("en H list", len(energy_to_heat_hydrogen_list))
+# print("ilm g list", len(ilmenite_grade_list))
 
 barwidth = 0.4
 b1 = ax4.bar(ilmenite_grade_list,
@@ -184,15 +192,15 @@ b4 = ax4.bar(ilmenite_grade_list, energy_to_heat_regolith_batch_list, bottom=ene
 '===================================plot options stacked bar plot (reactor energy)===================================='
 
 handles, labels = ax4.get_legend_handles_labels()
-order = [3,2,1,0]
+order = [3, 2, 1, 0]
 
-ax4.legend([handles[idx] for idx in order],[labels[idx] for idx in order])
+ax4.legend([handles[idx] for idx in order], [labels[idx] for idx in order])
 ax4.grid(axis="y")
 ax4.set_xlabel("Ilmenite concentration [wt%]")
 ax4.set_ylabel('kWh/kg LOX')
-ax4.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-ax4.set_xlim((0.75, min(15.25,max(ilmenite_grade_list)+0.25)))
-ax4.set_title('A',loc='left', fontsize =20)
+ax4.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+ax4.set_xlim((0.75, min(15.25, max(ilmenite_grade_list)+0.25)))
+ax4.set_title('A', loc='left', fontsize=20)
 
 
 '===========================================global plot options/formatting============================================'
@@ -205,7 +213,8 @@ plt.setp(ax4.xaxis.get_majorticklabels(), rotation=0,
          ha="center", rotation_mode="anchor")
 fig2.subplots_adjust(wspace=0.3, hspace=0.5)
 fig.savefig('Result_figure_energy_comparison', dpi=1200, bbox_inches='tight')
-fig2.savefig('Result_figure_reactor_energies.png', dpi=1200, bbox_inches='tight')
+fig2.savefig('Result_figure_reactor_energies.png',
+             dpi=1200, bbox_inches='tight')
 plt.show()
 plt.close()
 

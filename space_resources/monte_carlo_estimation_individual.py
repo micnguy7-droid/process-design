@@ -8,13 +8,15 @@ Version 1.0
 """
 
 
-from calculate_energy import energy_as_func_of_ilmenite
-import numpy as np
-import random
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib import cm
 import pickle
+import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from calculate_energy import energy_as_func_of_ilmenite
+from matplotlib import cm
+
 # global plot parameters
 plt.rcParams.update({'lines.markeredgewidth': 1})
 plt.rc('axes', axisbelow=True)
@@ -109,9 +111,7 @@ def simulate_events_simultaneous(range_dict, N=10, epsilon=0.00001):
     energy_total = np.array(energy_total)
 
     result_dict = [energy_per_process, energy_total]
-    
-    
-    
+
     return ilmenite_grade_list, result_dict
 
 
@@ -136,5 +136,5 @@ def monte_carlo_estimation_all_params(N=10):
 
 
 N = 1000
-#monte_carlo_estimation_individual(N=N)
+# monte_carlo_estimation_individual(N=N)
 monte_carlo_estimation_all_params(N=N)
