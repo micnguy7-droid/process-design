@@ -24,12 +24,12 @@ Outputs
 import csv
 import math
 import os
+
 import numpy as np
 import pandas
 import scipy
 from scipy import integrate
 from scipy.optimize import curve_fit, fsolve
-
 
 # CONSTANTS for various materials and parameters
 SOLAR_INPUT = 1361  # Solar constant [W/m^2]
