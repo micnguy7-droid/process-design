@@ -30,9 +30,3 @@ class Benef_class():
 
         #self.B_out_regolith = self.B_out_ilmenite + self.B_out_gangue
         self.B_out_gangue = self.B_out_regolith - self.B_out_ilmenite
-
-      
-        
-
-
-    

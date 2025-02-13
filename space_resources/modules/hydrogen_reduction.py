@@ -24,12 +24,12 @@ Outputs
 import csv
 import math
 import os
+
 import numpy as np
 import pandas
 import scipy
 from scipy import integrate
 from scipy.optimize import curve_fit, fsolve
-
 
 # CONSTANTS for various materials and parameters
 SOLAR_INPUT = 1361  # Solar constant [W/m^2]
@@ -57,7 +57,8 @@ HEAT_CAPACITY_HYDROGEN = 15300  # Heat capacity of hydrogen [J/(kg*K)]
 MOLAR_MASS_H2 = 2  # Molar mass of H2 [g/mol]
 MOLAR_MASS_ILMENITE = 151.71  # Molar mass of ilmenite [g/mol]
 MOLAR_MASS_O2 = 32  # Molar mass of O2 [g/mol]
-DELTA_H_REACTION_ILMENITE_HYDROGEN = 40.6  # Heat of reaction for ilmenite reduction [kJ/mol]
+# Heat of reaction for ilmenite reduction [kJ/mol]
+DELTA_H_REACTION_ILMENITE_HYDROGEN = 40.6
 HEAT_CAPACITY_CFI = 1130  # Heat capacity of CFI insulation [J/(kg*K)]
 HEAT_CAPACITY_HTMLI = 910  # Heat capacity of HTMLI insulation [J/(kg*K)]
 
@@ -67,18 +68,22 @@ CFI_thickness = 0.06  # Ceramic insulation thickness [m]
 HTMLI_thickness = 0.06  # HTMLI insulation thickness [m]
 reactor_height_above_surface = 1  # Reactor height above lunar surface [m]
 relevant_lunar_surface_radius = 10  # Relevant lunar surface radius [m]
-relevant_lunar_surface_area = math.pi * relevant_lunar_surface_radius**2  # Lunar surface area in m^2
+relevant_lunar_surface_area = math.pi * \
+    relevant_lunar_surface_radius**2  # Lunar surface area in m^2
 T_inner_wall_CFI = 1173  # Inner wall temperature of CFI insulation [K]
-energy_to_heat_regolith_batch = 0  # Placeholder for energy to heat regolith batch [kWh]
+# Placeholder for energy to heat regolith batch [kWh]
+energy_to_heat_regolith_batch = 0
 fill_level = 0.5  # Fill level in reactor [0-1]
 oxygen_production_rate = 274  # Oxygen production rate [kg/day]
 batch_reaction_time_in_hours = 2.5  # Time for each batch reaction [hours]
 
 # Reactor sizing variables
-ilmenite_percentage_for_reactor_sizing = 0.5  # Percentage of ilmenite for sizing reactor
+# Percentage of ilmenite for sizing reactor
+ilmenite_percentage_for_reactor_sizing = 0.5
 
 # Reactor heat-up parameters
-T_reduction_regolith_batch = 1173  # Temperature of regolith during reduction [K]
+# Temperature of regolith during reduction [K]
+T_reduction_regolith_batch = 1173
 delta_T_insulation = 200  # Temperature change during insulation cooldown [K]
 T_regolith_in = 273  # Temperature of incoming regolith [K]
 
@@ -88,6 +93,7 @@ reactor_heat_up_time_in_hours = 5  # Reactor heat-up time [hours]
 reactor_unloading_time = 0.5  # Unloading time [hours]
 
 # Function Definitions:
+
 
 def ilmenite_to_water_conversion(batch_reaction_time_in_hours):
     """Calculation of how much ilmenite is converted/reacted to water inside the reactor"""
@@ -127,7 +133,8 @@ def reactor_geometry_calculation(ilmenite_conversion_percentage, batch_reaction_
     total_batch_reaction_time = reactor_loading_time+reactor_heat_up_time_in_hours + \
         batch_reaction_time_in_hours+reactor_unloading_time  # [h]
     reactor_chamber_radius = (3 * oxygen_production_rate * total_batch_reaction_time/(4 * math.pi * fill_level * REGOLITH_DENSITY * 24 * ilmenite_conversion_percentage/100 *
-                              ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3)  # factor 0.5 is because for every mol of ilmenite, 0.5 mol O2 are created
+                              # factor 0.5 is because for every mol of ilmenite, 0.5 mol O2 are created
+                                                                                      ilmenite_percentage_for_reactor_sizing * 0.5 * MOLAR_MASS_O2/MOLAR_MASS_ILMENITE))**(1/3)
     inner_radius_CFI = reactor_chamber_radius  # [m]
     outer_radius_CFI = inner_radius_CFI + CFI_thickness  # [m]
     inner_radius_HTMLI = outer_radius_CFI  # [m]
@@ -175,17 +182,17 @@ def energy_to_heat_hydrogen_func(ilmenite_moles_batch, batch_reaction_time_in_ho
     molar_mass_flow_hydrogen = 100*molar_mass_flow_water
     mass_flow_hydrogen = molar_mass_flow_hydrogen * \
         MOLAR_MASS_H2/1000  # [kg/s] converted from g/s to kg/s
-    #print('mass_flow_hydrogen [g/s] =', mass_flow_hydrogen*1000)
-    #print('molar_mass_flow_water [mol/s] =', molar_mass_flow_water)
+    # print('mass_flow_hydrogen [g/s] =', mass_flow_hydrogen*1000)
+    # print('molar_mass_flow_water [mol/s] =', molar_mass_flow_water)
 
     # New hydrogen heat-up calculation:
-    #print("mass_flow_hydrogen =",mass_flow_hydrogen)
+    # print("mass_flow_hydrogen =",mass_flow_hydrogen)
     T_post_heater = 1173  # [K]
     power_to_heat_hydrogen = HEAT_CAPACITY_HYDROGEN*mass_flow_hydrogen * \
         (T_post_heater-T_pre_heater)/1000  # [kW] /1000 to convert from W to kW
     energy_to_heat_hydrogen = power_to_heat_hydrogen * \
         batch_reaction_time_in_hours  # /1000 to convert to kWh
-    #print("power_to_heat_hydrogen =",power_to_heat_hydrogen)
+    # print("power_to_heat_hydrogen =",power_to_heat_hydrogen)
 
     return energy_to_heat_hydrogen
 
@@ -234,17 +241,19 @@ def solar_and_lunar_heat_flux_calculation(surface_area_outer_HTMLI, view_factor_
         surface_area_outer_HTMLI * ABSORBTIVITY_HTMLI  # [W]
     # Heat flux coming from lunar surface to outer HTMLI surface
     Q_flux_lunar_surface_sunlight = (sigma * T_LUNAR_SURFACE_IN_SUNLIGHT**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
-                                     REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI  # [W]
+                                     # [W]
+                                     REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI
     # Heat flux coming from lunar surface to outer HTMLI surface
     Q_flux_lunar_surface_shadow = (sigma * T_LUNAR_SURFACE_IN_SHADOW**4 * EMISSIVITY_LUNAR_SURFACE + SOLAR_INPUT *
-                                   REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI  # [W]
+                                   # [W]
+                                   REFLECTIVITY_LUNAR_SURFACE) * relevant_lunar_surface_area * view_factor_lunar_surface_reactor * ABSORBTIVITY_HTMLI
 
     return Q_flux_lunar_surface_sunlight, Q_flux_lunar_surface_shadow
 
 
 def outer_surface_heat_balance(Q_flux_lunar_surface_shadow, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI):
     """Calculation of T_outer_surface_HTMLI (in sunlight) by doing heat balance around outer surface of HTMLI"""
-    
+
     def function1(T_outer_surface_HTMLI):
         x = (Q_flux_lunar_surface_shadow + (T_inner_wall_CFI - T_outer_surface_HTMLI)*4*math.pi
              / ((1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI) - sigma * T_outer_surface_HTMLI**4 * surface_area_outer_HTMLI * EMISSIVITY_HTMLI)
@@ -262,7 +271,8 @@ def radiative_and_conductive_heat_flux_calculation(T_outer_surface_HTMLI, surfac
 
     # Heat flux from the inner wall of insulation to outside
     Q_flux_out = (T_inner_wall_CFI - T_outer_surface_HTMLI)*4*math.pi/((1/inner_radius_CFI -
-                                                                        1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)  # [W]
+                                                                        # [W]
+                                                                        1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)
 
     return Q_flux_radiation_HTMLI, Q_flux_out
 
@@ -290,7 +300,8 @@ def energy_losses_during_heat_up_calculation(Q_flux_lunar_surface_shadow, inner_
 
         # Heat flux from the inner wall of insulation to outside
         Q_flux_out_heat_up = (T_inner_wall_CFI_heat_up - T_outer_surface_HTMLI_heat_up)*4*math.pi/(
-            (1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)  # [W]
+            # [W]
+            (1/inner_radius_CFI - 1/outer_radius_CFI)/λ_CFI + (1/inner_radius_HTMLI - 1/outer_radius_HTMLI)/λ_HTMLI)
 
         # The heat flux is added up for every second, which results in the total heat lost during heat up
         Q_out_added_heat_up += Q_flux_out_heat_up * 3600
@@ -348,7 +359,7 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch, T_regolith_in
     # Evaluate and plot function with the optimal parameters
     funcdata = func(xdata, popt[0], popt[1],
                     popt[2], popt[3], popt[4], popt[5])
-    #plt.plot(xdata,funcdata,label="Lunar regolith")
+    # plt.plot(xdata,funcdata,label="Lunar regolith")
 
     # Define fitting function for ilmenite
     def func_ilmenite(T, a, b, c, d, e, f):
@@ -365,12 +376,13 @@ def energy_to_heat_regolith_batch_calculation(mass_regolith_batch, T_regolith_in
 
     # integrate from starting to end temperature to get total heat needed to heat up 1 kg of regolith
     I = integrate.quad(func_ilmenite, T_regolith_in, T_reduction_regolith_batch, args=(
-        popt[0]+140*(1-ilmenite_percentage), popt[1], popt[2], popt[3], popt[4], popt[5]))  # Joules
-    #print("Integral =",I)
+        # Joules
+        popt[0]+140*(1-ilmenite_percentage), popt[1], popt[2], popt[3], popt[4], popt[5]))
+    # print("Integral =",I)
 
     # divide by 3.6e6 to get energy in kWh
     energy_to_heat_regolith_batch_per_kg = float(I[0])/(3.6e6)  # kWh
-    #print('energy_to_heat_regolith_batch_per_kg =', energy_to_heat_regolith_batch_per_kg)
+    # print('energy_to_heat_regolith_batch_per_kg =', energy_to_heat_regolith_batch_per_kg)
     # multiply by mass of regolith batch to get total energy to heat regolith batch
     energy_to_heat_regolith_batch = energy_to_heat_regolith_batch_per_kg * \
         mass_regolith_batch  # kWh
@@ -524,10 +536,10 @@ for i in range(1, 200):
         Q_total_lost_at_10_perc_ilm = Q_total_lost/oxygen_out_kg_batch
         energy_to_heat_regolith_batch_at_10_perc_ilm = energy_to_heat_regolith_batch / \
             oxygen_out_kg_batch
-#cwd = os.getcwd()
+# cwd = os.getcwd()
 df = pandas.DataFrame(
     data={"ilmenite_head_grade": ilmenite_grade_list, "rego_heat": rego_heat_list})
-#file_path = cwd+"/rego_heat_list.csv"
+# file_path = cwd+"/rego_heat_list.csv"
 df.to_csv(os.path.join("data", "rego_heat_list.csv"), sep=';', index=False)
 # print(file_path)
 
@@ -544,7 +556,6 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
         # Assign the values of the calculated in the function to use them later on
         ilmenite_conversion_percentage = ilmenite_to_water_conversion(
             batch_reaction_time_in_hours)
-
 
         reactor_chamber_radius, inner_radius_CFI, outer_radius_CFI, inner_radius_HTMLI, outer_radius_HTMLI, surface_area_outer_HTMLI, reactor_CFI_insulation_mass, reactor_HTMLI_insulation_mass, reactor_insulation_mass = reactor_geometry_calculation(
             ilmenite_conversion_percentage, batch_reaction_time_in_hours, CFI_thickness, HTMLI_thickness, reactor_heat_up_time_in_hours)
@@ -591,7 +602,6 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
         power_heat_up_phase, power_reaction_phase = power_requirements(
             total_energy_to_heat_insulation, energy_to_heat_regolith_batch, Q_out_added_heat_up, energy_to_heat_hydrogen, Q_lost_during_reaction, energy_endothermic_ilmenite_H2_reaction, batch_reaction_time_in_hours, reactor_heat_up_time_in_hours)
 
-
         # append result to list
         rego_heat_list.append(total_energy_used_by_reactor_per_kg_regolith)
         ilmenite_grade_list.append(i)
@@ -605,37 +615,34 @@ def create_rego_heat_list(batch_reaction_time_in_hours, CFI_thickness, HTMLI_thi
         Q_total_lost_list.append(Q_total_lost/oxygen_out_kg_batch)
         energy_to_heat_regolith_batch_list.append(
             energy_to_heat_regolith_batch/oxygen_out_kg_batch)
-        
 
     return rego_heat_list
-
 
 
 'READOUTS and GRAPHS'
 '=================='
 
-#print('energy_to_heat_hydrogen_at_10_perc_ilm =',energy_to_heat_hydrogen_at_10_perc_ilm)
-#print("Q_flux_lunar_surface_sunlight = ",Q_flux_lunar_surface_sunlight)
-#print("Q_flux_lunar_surface_shadow = ",Q_flux_lunar_surface_shadow)
-#print("Q_out_added_heat_up = ",Q_out_added_heat_up)
-#print("Q_lost_during_reaction = ",Q_lost_during_reaction)
-#print("Q_total_lost = ",Q_total_lost)
-#print("reactor_efficiency =", reactor_efficiency)
-#print("mass_regolith_batch=",mass_regolith_batch)
-#print("surface_area_outer_HTMLI=",surface_area_outer_HTMLI)
-#print("reactor_chamber_radius = ", reactor_chamber_radius)
-#print("reactor_insulation_mass =", reactor_insulation_mass)
-#print("energy_to_heat_hydrogen = ",energy_to_heat_hydrogen)
-#print("T_outer_surface_HTMLI =", T_outer_surface_HTMLI)
-#print("Q_flux_out = ",Q_flux_out)
-#print("ilmenite_moles_batch =",ilmenite_moles_batch)
-#print("water_out_moles_batch =",water_out_moles_batch)
-#print("Reactor volume =", 4/3 * math.pi * reactor_chamber_radius**3 * 0.25)
-#print("total_energy_used_by_reactor =",total_energy_used_by_reactor)
-#print("total_energy_used_by_reactor_per_kg_regolith =",total_energy_used_by_reactor_per_kg_regolith)
-#print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
-#print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
-#print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
-#print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
-#print(ilmenite_conversion_percentage)
-
+# print('energy_to_heat_hydrogen_at_10_perc_ilm =',energy_to_heat_hydrogen_at_10_perc_ilm)
+# print("Q_flux_lunar_surface_sunlight = ",Q_flux_lunar_surface_sunlight)
+# print("Q_flux_lunar_surface_shadow = ",Q_flux_lunar_surface_shadow)
+# print("Q_out_added_heat_up = ",Q_out_added_heat_up)
+# print("Q_lost_during_reaction = ",Q_lost_during_reaction)
+# print("Q_total_lost = ",Q_total_lost)
+# print("reactor_efficiency =", reactor_efficiency)
+# print("mass_regolith_batch=",mass_regolith_batch)
+# print("surface_area_outer_HTMLI=",surface_area_outer_HTMLI)
+# print("reactor_chamber_radius = ", reactor_chamber_radius)
+# print("reactor_insulation_mass =", reactor_insulation_mass)
+# print("energy_to_heat_hydrogen = ",energy_to_heat_hydrogen)
+# print("T_outer_surface_HTMLI =", T_outer_surface_HTMLI)
+# print("Q_flux_out = ",Q_flux_out)
+# print("ilmenite_moles_batch =",ilmenite_moles_batch)
+# print("water_out_moles_batch =",water_out_moles_batch)
+# print("Reactor volume =", 4/3 * math.pi * reactor_chamber_radius**3 * 0.25)
+# print("total_energy_used_by_reactor =",total_energy_used_by_reactor)
+# print("total_energy_used_by_reactor_per_kg_regolith =",total_energy_used_by_reactor_per_kg_regolith)
+# print("oxygen_out_kg_batch =", oxygen_out_kg_batch)
+# print("total_energy_used_by_reactor_per_kg_O2 =", total_energy_used_by_reactor_per_kg_O2)
+# print("energy_to_heat_hydrogen=",energy_to_heat_hydrogen)
+# print("energy_endothermic_ilmenite_H2_reaction=",energy_endothermic_ilmenite_H2_reaction)
+# print(ilmenite_conversion_percentage)

@@ -1,5 +1,20 @@
 # Space_resources_LEIA
 
+## Overview
+Space Resources LEIA is a Python-based modeling tool that simulates and analyzes the energy requirements for oxygen production from lunar regolith. The model evaluates the complete end-to-end production chain, from excavation to storage.
+
+## Process Chain
+The model includes energy calculations for:
+- Excavation 
+- Transportation
+- Beneficiation
+- Hydrogen reduction
+- Electrolysis
+- Liquefaction 
+- Storage
+
+## Project Structure
+
 The authors consider an end-to-end production chain starting from dry regolith as feedstock. The production includes the following process steps: excavation, transportation, beneficiation, hydrogen reduction, electrolysis, liquefaction, and storage. The model predicts the energy cost per kg oxygen produced based on parameters for each process step.
 
 The implementation is structured as follows:
@@ -14,12 +29,35 @@ The folder space_resources/additional_resources contains additional modules and 
 To use the project, there are two crucial files: energy_comparison_plots.py and monte_carlo_estimation.py which can be individually run to produce the desired output graphs. In the monte_carlo_estimation.py one also needs to adjust which function should be executed at the end of the file.
 
 
+## Setup
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/Space_resources_LEIA.git
+```
+2. Create and activate virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+```
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+## Usage
+The main analysis can be run through the key file:
 
-List of collaborators:
-    Fardin Ghaffari
-    Dorian Leger
-    Anton Morlock
-    Freja Thoresen
-    Baptiste Valentin
-    David Dickson
-    Joshua Rasera
+```bash
+python energy_comparison_plots.py
+```
+
+## Contributing
+Please submit issues and pull requests.
+
+## Authors
+Fardin Ghaffari
+Dorian Leger
+Anton Morlock
+Freja Thoresen
+Baptiste Valentin
+David Dickson
+Joshua Rasera

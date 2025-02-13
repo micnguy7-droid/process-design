@@ -40,14 +40,11 @@ trip with a rover full of regolith.
 
 ########################################### imports #############################################################
 
-import math
-
-import numpy as np
-
-import scipy.integrate as integrate
 
 from scipy.optimize import root_scalar
-
+import scipy.integrate as integrate
+import numpy as np
+import math
 import warnings
 
 
@@ -189,7 +186,7 @@ def fun_to_solve_front(theta0Var, sVar, mTotVar, gVar, slopeVar, lVar, hVar, bVa
 def fun_to_solve_rear(theta0Var, sVar, mTotVar, gVar, slopeVar, lVar, hVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar):
 
     return Fz_rear(mTotVar, gVar, slopeVar, lVar, hVar) - bVar * rVar * integrate.quad(fun_to_integrate_sigma, 0, theta0Var, args=(theta0Var, bVar, rVar, nVar, kcVar, kphiVar))[0] - bVar * rVar * integrate.quad(fun_to_integrate_tau, 0, theta0Var, args=(theta0Var, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
- 
+
 
 def fNy(phiVar):
     """Function that extrapolates the value of Ny (soil weight bearing capacity factor) based on phiVar (friction angle)"""
@@ -260,7 +257,8 @@ def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kc
     sol_theta0_front = root_scalar(fun_to_solve_front, args=(sVar, mTotVar, gVar, slopeVar, lVar,
                                    hVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar), method='toms748', bracket=[0, 1])
 
-    z0_front = rVar * (1 - math.cos(sol_theta0_front.root))  # Sinkage of the front wheels [m]
+    z0_front = rVar * (1 - math.cos(sol_theta0_front.root)
+                       )  # Sinkage of the front wheels [m]
 
     l0_front = sol_theta0_front.root * rVar
 
@@ -280,7 +278,8 @@ def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kc
     sol_theta0_rear = root_scalar(fun_to_solve_rear, args=(sVar, mTotVar, gVar, slopeVar, lVar,
                                   hVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar), method='toms748', bracket=[0, 1])
 
-    z0_rear = rVar * (1 - math.cos(sol_theta0_rear.root))  # Sinkage of the rear wheels [m]
+    # Sinkage of the rear wheels [m]
+    z0_rear = rVar * (1 - math.cos(sol_theta0_rear.root))
 
     l0_rear = sol_theta0_rear.root * rVar
 
@@ -298,20 +297,25 @@ def drawbar_pull(sVar, mTotVar, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kc
     # End verify
 
     Ft_front = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a front wheel [N]
+        # Traction effort of a front wheel [N]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     Ft_rear = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a rear wheel [N]
+        # Traction effort of a rear wheel [N]
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     Rc_front = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_front ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a front wheel [N]
+        (z0_front ** (nVar + 1)) / \
+        (nVar + 1)  # Compaction resistance of a front wheel [N]
 
     Rc_rear = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_rear ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a rear wheel [N]
+        (z0_rear ** (nVar + 1)) / \
+        (nVar + 1)  # Compaction resistance of a rear wheel [N]
 
     R_slope = mTotVar * gVar * math.sin(slopeVar)  # Slope resistance [N]
 
-    db_pull = 2 * Ft_front + 2 * Ft_rear - 2 * Rc_front - 2 * Rc_rear - R_slope  # Drawbar pull (of the whole vehicle) [N]
+    db_pull = 2 * Ft_front + 2 * Ft_rear - 2 * Rc_front - 2 * \
+        Rc_rear - R_slope  # Drawbar pull (of the whole vehicle) [N]
 
     return db_pull
 
@@ -362,22 +366,28 @@ def energy_requirements(sVar, mTotVar, vVar, bVar, rVar, slopeVar, lVar, hVar, g
     # End verify
 
     Ft_front = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a front wheel [N]
+        # Traction effort of a front wheel [N]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     Ft_rear = bVar * rVar * integrate.quad(fun_to_integrate_traction, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Traction effort of a rear wheel [N]
+        # Traction effort of a rear wheel [N]
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     Rc_front = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_front ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a front wheel [N]
+        (z0_front ** (nVar + 1)) / \
+        (nVar + 1)  # Compaction resistance of a front wheel [N]
 
     Rc_rear = bVar * (kcVar / bVar + kphiVar) * \
-        (z0_rear ** (nVar + 1)) / (nVar + 1)  # Compaction resistance of a rear wheel [N]
+        (z0_rear ** (nVar + 1)) / \
+        (nVar + 1)  # Compaction resistance of a rear wheel [N]
 
     Tr_front = bVar * rVar ** 2 * integrate.quad(tau, 0, sol_theta0_front.root, args=(
-        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Torque exerted on a front wheel [N.m]
+        # Torque exerted on a front wheel [N.m]
+        sol_theta0_front.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     Tr_rear = bVar * rVar ** 2 * integrate.quad(tau, 0, sol_theta0_rear.root, args=(
-        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]  # Torque exerted on a rear wheel [N.m]
+        # Torque exerted on a rear wheel [N.m]
+        sol_theta0_rear.root, sVar, bVar, rVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar))[0]
 
     omega_r = vVar / (rVar * (1 - sVar))  # Rotation speed [rad/s]
 
@@ -456,7 +466,8 @@ def compute_beta(mRoverVar, mRegolithVar, gVar, bVar, rVar, slopeVar, lVar, hVar
         MassOutwardTrip, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar)
 
     EnergyPerDistanceOutward = energy_requirements(RequiredSlipOutward, MassOutwardTrip, vVar, bVar,
-                                                   rVar, slopeVar, lVar, hVar, gVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar, etaVar)  # [J/m]
+                                                   # [J/m]
+                                                   rVar, slopeVar, lVar, hVar, gVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar, etaVar)
 
     EnergyOutward = EnergyPerDistanceOutward * distanceVar  # [J]
 
@@ -466,7 +477,8 @@ def compute_beta(mRoverVar, mRegolithVar, gVar, bVar, rVar, slopeVar, lVar, hVar
         MassReturnTrip, gVar, bVar, rVar, slopeVar, lVar, hVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar)
 
     EnergyPerDistanceReturn = energy_requirements(RequiredSlipReturn, MassReturnTrip, vVar, bVar,
-                                                  rVar, slopeVar, lVar, hVar, gVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar, etaVar)  # [J/m]
+                                                  # [J/m]
+                                                  rVar, slopeVar, lVar, hVar, gVar, nVar, kcVar, kphiVar, cVar, kVar, phiVar, etaVar)
 
     EnergyReturn = EnergyPerDistanceReturn * distanceVar  # [J]
 
@@ -500,13 +512,15 @@ kVal = 18e-3  # Shear modulus (m)
 
 ############################################ Other ASSUMPTIONS ###################################################
 
-velocityVal = 0.49 # [m/s], maximum speed from "RASSOR, the reduced gravity excavator."
+# [m/s], maximum speed from "RASSOR, the reduced gravity excavator."
+velocityVal = 0.49
 
 motor_efficiencyVal = 0.6
 
 mRover = 67  # [kg] Total mass of RASSOR2
 
-mRegolith = 90  # [kg] The rover is assumed to transport the maximum amount of regolith each time (from "RASSOR, the reduced gravity excavator.").
+# [kg] The rover is assumed to transport the maximum amount of regolith each time (from "RASSOR, the reduced gravity excavator.").
+mRegolith = 90
 
 WheelRadiusVal = 0.4318 / 2  # [m] Wheel radius (17 inches for the full wheel)
 
@@ -518,7 +532,8 @@ heightCOGVal = 0.1  # [m] (The CoG is assumed to be centered)
 
 SlopeVal = 0  # [rad] The soil is assumed to be flat
 
-DistanceToTravel = 1000  # [m] Distance between the excavation and the beneficiation site
+# [m] Distance between the excavation and the beneficiation site
+DistanceToTravel = 1000
 
 NcVal = fNy(phiVal*180/math.pi)  # Coefficient based on phi
 
@@ -529,7 +544,8 @@ NyVal = fNc(phiVal*180/math.pi)  # Coefficient based on phi
 
 
 Beta = compute_beta(mRover, mRegolith, gVal, WheelWidthVal, WheelRadiusVal, SlopeVal, wheelbaseVal, heightCOGVal,
-                    velocityVal, motor_efficiencyVal, DistanceToTravel, nVal, kcVal, kphiVal, cVal, kVal, phiVal)  # [kJ/kg/km]
+                    # [kJ/kg/km]
+                    velocityVal, motor_efficiencyVal, DistanceToTravel, nVal, kcVal, kphiVal, cVal, kVal, phiVal)
 
 
 def get_Beta(motor_efficiency, mRover_input):
@@ -541,4 +557,4 @@ def get_Beta(motor_efficiency, mRover_input):
 Beta = Beta/3600  # [kWh/kg/km]
 
 
-#print("Beta:", Beta, "[kWh/kg/km]")
+# print("Beta:", Beta, "[kWh/kg/km]")
