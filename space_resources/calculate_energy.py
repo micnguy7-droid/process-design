@@ -110,7 +110,7 @@ def energy_as_func_of_ilmenite(cryocooler_efficiency = 0.2, system_efficiency=0.
                                HTMLI_thickness=0.06, delta_T_insulation=200, reactor_heat_up_time_in_hours=5, T_regolith_in=273, 
                                T_pre_heater=723, cohCoeff=1100, intAngle=45, extAngle=12.5):
 
-=======
+#=======
 
     """calculates the energy requirements of oxygen production given the process parameters"""
    
