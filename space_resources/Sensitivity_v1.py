@@ -16,7 +16,7 @@ from modules.transportation_onlyBeta import *
 import pandas as pd
 import os
 
-print("check 1")
+
 # Parameters definition
 params = {
     "cohCoeff": {"low": 100, "mid": 1100, "high": 2100},  # C = cohesion coefficient (Pa)
@@ -45,7 +45,7 @@ params = {
 
 num_points = 17 # points in sen analysis, set to 3 for rapid testing
 
-print("check 2")
+
 
 def calculate_process__specific_energy(cryocooler_efficiency = 0.2, system_efficiency=0.6, enrichment_factor = 6, benef_ilmenite_recovery= 0.505, 
                                        motor_efficiency=0.6, mRover=67, T_hot_reservoir_carnot_cycle=233, T_of_incoming_oxygen=340, vip_thickness=0.025, 
@@ -171,7 +171,7 @@ for param, param_info in params.items():
     matrix = pd.concat([matrix, new_rows_df], ignore_index=True)
 
 
-#this is to deal with blank lines artifact, could be removed after improving the code above
+#this is to deal with blank lines artifact, could be removed
 matrix = matrix.drop(matrix.index[0:22])
 # Reset index if you want a clean, continuous index after dropping the rows
 matrix.reset_index(drop=True, inplace=True)
